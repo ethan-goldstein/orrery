@@ -9,7 +9,10 @@ Live: https://ethan-goldstein.github.io/orrery/
 
 ```bash
 npm ci
-npm run data:hyg      # star catalog (once)
+npm run data:hyg                     # star catalog (once)
+npx tsx scripts/fetch-horizons.ts    # moon seeds + test fixtures from JPL Horizons (once)
+npx tsx scripts/build-textures.ts    # planet maps -> 1k/2k/4k webp/avif (once, ~2 min)
+npm run credits                      # regenerate CREDITS.md and the Sources dialog
 npm run dev
 ```
 

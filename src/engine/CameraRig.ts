@@ -143,6 +143,13 @@ export class CameraRig {
     });
   }
 
+  /** Update the destination of an in-progress flight (the target body keeps moving). */
+  retarget(target: THREE.Vector3, distance?: number): void {
+    if (!this.flight) return;
+    this.flight.to.target.copy(target);
+    if (distance !== undefined) this.flight.to.distance = distance;
+  }
+
   cancelFlight(): void {
     if (this.flight) {
       this.flight.resolve();

@@ -5,6 +5,7 @@ import { probeFromBrowser, type TierName } from './QualityTier';
 import { settingsStore } from '@/store/settings';
 import { clockStore } from '@/store/clock';
 import { advance } from '@/astro/time';
+import { experienceStore } from '@/store/experience';
 
 export type ExperienceFactory = () => Experience;
 
@@ -66,7 +67,10 @@ export class Engine {
     this.renderer.canvas.dataset.experienceState = 'loading';
     try {
       await exp.mount({ renderer: this.renderer, stage: this.stage, signal: abort.signal });
-      if (!abort.signal.aborted) this.renderer.canvas.dataset.experienceState = 'ready';
+      if (!abort.signal.aborted) {
+        this.renderer.canvas.dataset.experienceState = 'ready';
+        experienceStore.getState().set({ commands: exp.commands() });
+      }
     } catch (err) {
       if (!abort.signal.aborted) {
         this.renderer.canvas.dataset.experienceState = 'error';
@@ -82,6 +86,7 @@ export class Engine {
     if (this.current) {
       this.current.unmount();
       this.current = null;
+      experienceStore.getState().set({ commands: [] });
     }
   }
 

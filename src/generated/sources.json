@@ -1,0 +1,175 @@
+{
+ "generated": "2026-09-14T19:47:57.713Z",
+ "textures": [
+  {
+   "id": "earth-clouds",
+   "title": "Solar System Scope textures (8k_earth_clouds.jpg)",
+   "url": "https://www.solarsystemscope.com/textures/download/8k_earth_clouds.jpg",
+   "license": "CC-BY-4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+   "attribution": "Solar System Scope / INOVE, CC BY 4.0"
+  },
+  {
+   "id": "earth-day",
+   "title": "Solar System Scope textures (8k_earth_daymap.jpg)",
+   "url": "https://www.solarsystemscope.com/textures/download/8k_earth_daymap.jpg",
+   "license": "CC-BY-4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+   "attribution": "Solar System Scope / INOVE, CC BY 4.0"
+  },
+  {
+   "id": "earth-night",
+   "title": "Solar System Scope textures (8k_earth_nightmap.jpg)",
+   "url": "https://www.solarsystemscope.com/textures/download/8k_earth_nightmap.jpg",
+   "license": "CC-BY-4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+   "attribution": "Solar System Scope / INOVE, CC BY 4.0"
+  },
+  {
+   "id": "earth-normal",
+   "title": "Solar System Scope textures (8k_earth_normal_map.tif)",
+   "url": "https://www.solarsystemscope.com/textures/download/8k_earth_normal_map.tif",
+   "license": "CC-BY-4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+   "attribution": "Solar System Scope / INOVE, CC BY 4.0"
+  },
+  {
+   "id": "earth-specular",
+   "title": "Solar System Scope textures (8k_earth_specular_map.tif)",
+   "url": "https://www.solarsystemscope.com/textures/download/8k_earth_specular_map.tif",
+   "license": "CC-BY-4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+   "attribution": "Solar System Scope / INOVE, CC BY 4.0"
+  },
+  {
+   "id": "jupiter",
+   "title": "Solar System Scope textures (8k_jupiter.jpg)",
+   "url": "https://www.solarsystemscope.com/textures/download/8k_jupiter.jpg",
+   "license": "CC-BY-4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+   "attribution": "Solar System Scope / INOVE, CC BY 4.0"
+  },
+  {
+   "id": "mars",
+   "title": "Solar System Scope textures (8k_mars.jpg)",
+   "url": "https://www.solarsystemscope.com/textures/download/8k_mars.jpg",
+   "license": "CC-BY-4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+   "attribution": "Solar System Scope / INOVE, CC BY 4.0"
+  },
+  {
+   "id": "mercury",
+   "title": "Solar System Scope textures (2k_mercury.jpg)",
+   "url": "https://www.solarsystemscope.com/textures/download/2k_mercury.jpg",
+   "license": "CC-BY-4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+   "attribution": "Solar System Scope / INOVE, CC BY 4.0"
+  },
+  {
+   "id": "milky-way",
+   "title": "Solar System Scope textures (8k_stars_milky_way.jpg)",
+   "url": "https://www.solarsystemscope.com/textures/download/8k_stars_milky_way.jpg",
+   "license": "CC-BY-4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+   "attribution": "Solar System Scope / INOVE, CC BY 4.0"
+  },
+  {
+   "id": "moon",
+   "title": "Solar System Scope textures (8k_moon.jpg)",
+   "url": "https://www.solarsystemscope.com/textures/download/8k_moon.jpg",
+   "license": "CC-BY-4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+   "attribution": "Solar System Scope / INOVE, CC BY 4.0"
+  },
+  {
+   "id": "neptune",
+   "title": "Solar System Scope textures (2k_neptune.jpg)",
+   "url": "https://www.solarsystemscope.com/textures/download/2k_neptune.jpg",
+   "license": "CC-BY-4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+   "attribution": "Solar System Scope / INOVE, CC BY 4.0"
+  },
+  {
+   "id": "saturn",
+   "title": "Solar System Scope textures (8k_saturn.jpg)",
+   "url": "https://www.solarsystemscope.com/textures/download/8k_saturn.jpg",
+   "license": "CC-BY-4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+   "attribution": "Solar System Scope / INOVE, CC BY 4.0"
+  },
+  {
+   "id": "saturn-ring",
+   "title": "Solar System Scope textures (8k_saturn_ring_alpha.png)",
+   "url": "https://www.solarsystemscope.com/textures/download/8k_saturn_ring_alpha.png",
+   "license": "CC-BY-4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+   "attribution": "Solar System Scope / INOVE, CC BY 4.0"
+  },
+  {
+   "id": "sun",
+   "title": "Solar System Scope textures (2k_sun.jpg)",
+   "url": "https://www.solarsystemscope.com/textures/download/2k_sun.jpg",
+   "license": "CC-BY-4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+   "attribution": "Solar System Scope / INOVE, CC BY 4.0"
+  },
+  {
+   "id": "uranus",
+   "title": "Solar System Scope textures (2k_uranus.jpg)",
+   "url": "https://www.solarsystemscope.com/textures/download/2k_uranus.jpg",
+   "license": "CC-BY-4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+   "attribution": "Solar System Scope / INOVE, CC BY 4.0"
+  },
+  {
+   "id": "venus-atmosphere",
+   "title": "Solar System Scope textures (2k_venus_atmosphere.jpg)",
+   "url": "https://www.solarsystemscope.com/textures/download/2k_venus_atmosphere.jpg",
+   "license": "CC-BY-4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+   "attribution": "Solar System Scope / INOVE, CC BY 4.0"
+  },
+  {
+   "id": "venus-surface",
+   "title": "Solar System Scope textures (2k_venus_surface.jpg)",
+   "url": "https://www.solarsystemscope.com/textures/download/2k_venus_surface.jpg",
+   "license": "CC-BY-4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+   "attribution": "Solar System Scope / INOVE, CC BY 4.0"
+  }
+ ],
+ "data": [
+  {
+   "id": "solar",
+   "title": "Solar system data",
+   "summary": "## moons.json\nPlanet-centred state vectors (ecliptic J2000, km, km/s, geometric) for 21 moons at 2026-01-01 00:00 UTC,\nretrieved 2026-09-14T19:29:49.622Z from NASA/JPL Horizons (https://ssd.jpl.nasa.gov/horizons/). Public domain (US Government work).\nThe app converts each to osculating Keplerian elements and propagates them as two-body orbits; nodal and apsidal\nprecession are not modelled, so positions drift from the true ephemeris over years. The Galilean moons and Earth's\nMoon are computed by astronomy-engine instead.\n\nCentral-body GM values (km^3/s^2): mars 42828.375214, jupiter 126686531.9"
+  },
+  {
+   "id": "stars",
+   "title": "Star catalog",
+   "summary": "Derived from the HYG Database v4 by David Nash (Astronomy Nexus), retrieved 2026-09-14T19:02:13.440Z from\nhttps://raw.githubusercontent.com/astronexus/HYG-Database/main/hyg/CURRENT/hygdata_v41.csv (sha256 d9f69fd86bbf90a4e4d52b4c5c53eacfa6dfc0bfdef85bfd94f095e0bebe4ebd).\n\nLicense: **CC BY-SA 4.0**. This derived file (stars brighter than magnitude 6.5, 8920 stars,\npositions rotated into the ecliptic J2000 frame) is likewise shared under CC BY-SA 4.0.\n\nLayout of hyg.bin: Float32 x5 per star: scene x, y, z (unit vector, ecliptic J2000 Y-up), visual magnitude, B-V."
+  }
+ ],
+ "software": [
+  {
+   "title": "astronomy-engine (VSOP87 / ELP-2000 ephemerides)",
+   "url": "https://github.com/cosinekitty/astronomy",
+   "license": "MIT"
+  },
+  {
+   "title": "three.js",
+   "url": "https://threejs.org",
+   "license": "MIT"
+  },
+  {
+   "title": "postprocessing",
+   "url": "https://github.com/pmndrs/postprocessing",
+   "license": "zlib"
+  },
+  {
+   "title": "satellite.js (SGP4)",
+   "url": "https://github.com/shashwatak/satellite-js",
+   "license": "MIT"
+  }
+ ]
+}

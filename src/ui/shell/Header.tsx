@@ -1,10 +1,13 @@
 import { Link, useLocation } from 'wouter';
 import { ROUTES } from '@/app/route-list';
 import { useExperience } from '@/store/experience';
+import { useState } from 'react';
+import { SourcesDialog } from '@/ui/SourcesDialog';
 
 export function Header() {
   const [location] = useLocation();
   const cleanView = useExperience((s) => s.cleanView);
+  const [sources, setSources] = useState(false);
   if (cleanView) return <div />;
   return (
     <header className="flex items-center justify-between gap-4 px-5 py-4" data-ui>
@@ -23,14 +26,15 @@ export function Header() {
           </Link>
         ))}
       </nav>
-      <a
-        href="https://github.com/ethan-goldstein/orrery"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-xs text-fog-2 hover:text-fog"
-      >
-        Source ↗
-      </a>
+      <div className="flex items-center gap-4 text-xs">
+        <button className="text-fog-2 hover:text-fog" onClick={() => setSources(true)} data-testid="sources-button">
+          Sources ↗
+        </button>
+        <a href="https://github.com/ethan-goldstein/orrery" target="_blank" rel="noopener noreferrer" className="text-fog-2 hover:text-fog">
+          GitHub ↗
+        </a>
+      </div>
+      <SourcesDialog open={sources} onClose={() => setSources(false)} />
     </header>
   );
 }

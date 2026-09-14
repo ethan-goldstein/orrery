@@ -8,6 +8,8 @@ import { ROUTES } from './route-list';
 import { parseSharedState } from './url-state';
 import { clockStore } from '@/store/clock';
 import { settingsStore } from '@/store/settings';
+import { CommandPalette } from '@/ui/CommandPalette';
+import { installGlobalShortcuts } from './shortcuts';
 
 const pages: Record<string, LazyExoticComponent<ComponentType>> = {
   home: lazy(() => import('@/pages/HomePage')),
@@ -31,6 +33,7 @@ export function App() {
     if (s.rate !== undefined) clock.setRate(s.rate);
     if (s.q) settingsStore.getState().setQuality(s.q);
     if (s.labels !== undefined) settingsStore.getState().setLabels(s.labels);
+    return installGlobalShortcuts();
   }, []);
 
   return (
@@ -58,6 +61,7 @@ export function App() {
             <TimeBar />
           </div>
         </div>
+        <CommandPalette />
       </EngineProvider>
     </Router>
   );

@@ -31,3 +31,29 @@ body {
 button, select, input { font: inherit; }
 :focus-visible { outline: 2px solid var(--color-sky); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.label-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.body-label { position: absolute; left: 0; top: 0; pointer-events: auto; display: flex; align-items: center; gap: 6px; padding: 3px 8px 3px 4px; margin: -12px 0 0 -6px; background: transparent; border: 0; color: var(--color-fog); font-size: 12px; letter-spacing: 0.02em; cursor: pointer; white-space: nowrap; will-change: transform; opacity: 0.85; transition: opacity 0.15s; }
+.body-label:hover, .body-label.is-selected { opacity: 1; }
+.body-label.is-selected .body-label-name { color: var(--color-glow); }
+.body-label-dot { width: 7px; height: 7px; border-radius: 50%; box-shadow: 0 0 6px currentColor; flex: none; }
+.body-label-name { text-shadow: 0 1px 3px #000; }
+.picker-thumb { width: 34px; height: 34px; border-radius: 50%; background-size: 200% 100%; background-position: 50% 50%; box-shadow: inset -6px -4px 10px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.08); }
+.panel { background: color-mix(in srgb, var(--color-ink-2) 82%, transparent); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,0.06); font-size: 13px; color: var(--color-fog); border: 1px solid transparent; }
+.chip:hover { background: rgba(255,255,255,0.12); }
+.chip[aria-pressed="true"], .chip.is-active { background: rgba(255,210,122,0.14); border-color: rgba(255,210,122,0.35); color: var(--color-glow); }
+kbd { font: 11px var(--font-mono); padding: 1px 5px; border-radius: 4px; background: rgba(255,255,255,0.08); color: var(--color-fog-2); }
+
+.palette-overlay { position: fixed; inset: 0; background: rgba(2,4,8,0.55); backdrop-filter: blur(4px); z-index: 50; }
+.palette-content { position: fixed; left: 50%; top: 14vh; transform: translateX(-50%); width: min(560px, 92vw); z-index: 51; background: var(--color-ink-2); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
+.palette-input { width: 100%; padding: 14px 16px; background: transparent; border: 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: var(--color-fog); font-size: 15px; outline: none; }
+.palette-list { max-height: 50vh; overflow-y: auto; padding: 6px; }
+.palette-empty { padding: 16px; color: var(--color-fog-2); font-size: 13px; }
+.palette-list [cmdk-group-heading] { padding: 8px 10px 4px; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-fog-2); }
+.palette-list [cmdk-item] { padding: 8px 10px; border-radius: 8px; font-size: 14px; cursor: pointer; }
+.palette-list [cmdk-item][data-selected="true"] { background: rgba(255,255,255,0.08); color: var(--color-glow); }
+
+.sources-dialog { background: var(--color-ink-2); color: var(--color-fog); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; width: min(640px, 92vw); padding: 0; }
+.sources-dialog::backdrop { background: rgba(2,4,8,0.6); backdrop-filter: blur(4px); }

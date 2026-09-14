@@ -37,6 +37,8 @@ interface Source {
   alpha?: boolean;
   /** non-square aspect: ring strips */
   strip?: boolean;
+  /** 16-bit elevation: also emit a tangent-space normal map */
+  height?: boolean;
 }
 
 const sss = (id: string, file: string, dir: string, opts: Partial<Source> = {}): Source => ({
@@ -70,6 +72,23 @@ const SOURCES: Source[] = [
   sss('uranus', '2k_uranus.jpg', 'solar'),
   sss('neptune', '2k_neptune.jpg', 'solar'),
   sss('milky-way', '8k_stars_milky_way.jpg', 'sky', { urls: [`${SSS}/8k_stars_milky_way.jpg`, `${SSS}/2k_stars_milky_way.jpg`] }),
+  {
+    id: 'moon-lroc', dir: 'moon', colorSpace: 'srgb', maxTier: '4k',
+    urls: ['https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/lroc_color_poles_4k.tif'],
+    license: { spdx: 'NASA', url: 'https://www.nasa.gov/nasa-brand-center/images-and-media/' },
+    source: { title: 'NASA SVS CGI Moon Kit, LROC WAC color mosaic', url: 'https://svs.gsfc.nasa.gov/4720' },
+    attribution: 'NASA Scientific Visualization Studio / Ernie Wright; LROC WAC (Arizona State University)',
+    transforms: 'resized to 1k/2k/4k tiers, re-encoded WebP/AVIF',
+  },
+  {
+    id: 'moon-height', dir: 'moon', colorSpace: 'linear', maxTier: '4k',
+    urls: ['https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/ldem_16_uint.tif'],
+    license: { spdx: 'NASA', url: 'https://www.nasa.gov/nasa-brand-center/images-and-media/' },
+    source: { title: 'NASA SVS CGI Moon Kit, LOLA elevation (16 ppd)', url: 'https://svs.gsfc.nasa.gov/4720' },
+    attribution: 'NASA SVS / LOLA (Lunar Orbiter Laser Altimeter)',
+    transforms: 'uint16 elevation resampled to tiers; normal map computed by central differences (moon-normal-*)',
+    height: true,
+  },
 ];
 
 const TIER_WIDTH = { '1k': 1024, '2k': 2048, '4k': 4096 } as const;
@@ -99,6 +118,18 @@ async function download(s: Source): Promise<{ file: string; url: string; sha256:
   return null;
 }
 
+/**
+ * 16-bit elevation: sharp converts to 8 bits on resize, which flattens the
+ * relief, so the actual height/normal files are produced by
+ * scripts/moon-normal.py (numpy). This only reserves the manifest entries.
+ */
+async function buildNormalMap(_file: string, w: number, h: number, dir: string, id: string, tier: string): Promise<void> {
+  const target = join(dir, `${id}-${tier}.webp`);
+  if (!existsSync(target)) console.warn(`  ${target} missing: run scripts/.venv/bin/python scripts/moon-normal.py`);
+  void w;
+  void h;
+}
+
 const only = process.argv[2];
 const manifestPath = join(OUT, 'manifest.json');
 const manifest = existsSync(manifestPath)
@@ -126,6 +157,12 @@ for (const s of SOURCES) {
     mkdirSync(dir, { recursive: true });
     const base = `${s.id}-${tier}`;
     const pipeline = () => sharp(dl.file, { limitInputPixels: false }).resize(w, h, { fit: 'fill', kernel: 'lanczos3' });
+    if (s.height) {
+      await buildNormalMap(dl.file, w, h, dir, s.id, tier);
+      files[tier] = { webp: `textures/${s.dir}/${base}.webp` };
+      console.log(`  ${tier} ${w}x${h} (height + normal)`);
+      continue;
+    }
     const webp = join(dir, `${base}.webp`);
     await pipeline().webp({ quality: s.colorSpace === 'linear' ? 90 : 84, alphaQuality: 95, effort: 5 }).toFile(webp);
     files[tier] = { webp: `textures/${s.dir}/${base}.webp` };
@@ -148,8 +185,13 @@ for (const s of SOURCES) {
     sourceWidth: srcW,
   };
   if (dl.url.startsWith(THREE)) entry.license = THREE_LICENSE;
-  manifest.textures = manifest.textures.filter((t) => (t as { id: string }).id !== s.id);
+  manifest.textures = manifest.textures.filter((t) => (t as { id: string }).id !== s.id && (t as { id: string }).id !== `${s.id.replace('-height', '')}-normal`);
   manifest.textures.push(entry);
+  if (s.height) {
+    const normalFiles: Record<string, Record<string, string>> = {};
+    for (const [tier, f] of Object.entries(files)) normalFiles[tier] = { webp: f.webp!.replace(`${s.id}-`, 'moon-normal-') };
+    manifest.textures.push({ ...entry, id: 'moon-normal', files: normalFiles, transforms: 'tangent-space normal map from LOLA elevation, relief x8' });
+  }
 }
 manifest.generated = new Date().toISOString();
 manifest.textures.sort((a, b) => ((a as { id: string }).id < (b as { id: string }).id ? -1 : 1));

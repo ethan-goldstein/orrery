@@ -10,12 +10,13 @@ import { clockStore } from '@/store/clock';
 import { settingsStore } from '@/store/settings';
 import { CommandPalette } from '@/ui/CommandPalette';
 import { installGlobalShortcuts } from './shortcuts';
+import { useExperience as useExperienceState } from '@/store/experience';
 
 const pages: Record<string, LazyExoticComponent<ComponentType>> = {
   home: lazy(() => import('@/pages/HomePage')),
   solar: lazy(() => import('@/pages/SolarPage')),
-  earth: lazy(() => import('@/pages/PlaceholderPage').then((m) => ({ default: m.make('earth') }))),
-  moon: lazy(() => import('@/pages/PlaceholderPage').then((m) => ({ default: m.make('moon') }))),
+  earth: lazy(() => import('@/pages/EarthPage')),
+  moon: lazy(() => import('@/pages/MoonPage')),
   orbit: lazy(() => import('@/pages/PlaceholderPage').then((m) => ({ default: m.make('orbit') }))),
   quakes: lazy(() => import('@/pages/PlaceholderPage').then((m) => ({ default: m.make('quakes') }))),
   oceans: lazy(() => import('@/pages/PlaceholderPage').then((m) => ({ default: m.make('oceans') }))),
@@ -62,9 +63,16 @@ export function App() {
           </div>
         </div>
         <CommandPalette />
+        <JourneyVeil />
       </EngineProvider>
     </Router>
   );
+}
+
+/** Fades the stage to black between worlds so a swap never flashes a half-built scene. */
+function JourneyVeil() {
+  const journey = useExperienceState((s) => s.journey);
+  return <div className="journey-veil" data-active={journey ? 'true' : 'false'} aria-hidden="true" />;
 }
 
 function NotFound() {

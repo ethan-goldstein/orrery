@@ -36,7 +36,7 @@ export function useExperience(id: string, factory: ExperienceFactory): void {
   const engine = useEngine();
   useEffect(() => {
     if (!engine) return;
-    experienceStore.getState().set({ active: id, load: 'loading', status: 'Preparing your view…' });
+    experienceStore.getState().set({ active: id, load: 'loading', status: 'Preparing your view…', journey: true });
     let cancelled = false;
     engine.mount(factory).then(() => {
       if (cancelled) return;
@@ -44,6 +44,7 @@ export function useExperience(id: string, factory: ExperienceFactory): void {
       experienceStore.getState().set({
         load: state === 'error' ? 'error' : 'ready',
         status: state === 'error' ? 'This world could not load. Reload to try again.' : '',
+        journey: false,
       });
     });
     return () => {

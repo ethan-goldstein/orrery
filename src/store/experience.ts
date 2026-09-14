@@ -11,6 +11,8 @@ export interface ExperienceState {
   status: string;
   cleanView: boolean;
   commands: Command[];
+  /** true while one experience is being swapped for another */
+  journey: boolean;
   set: (patch: Partial<Omit<ExperienceState, 'set'>>) => void;
 }
 
@@ -20,6 +22,7 @@ export const experienceStore = createStore<ExperienceState>((set) => ({
   status: '',
   cleanView: false,
   commands: [],
+  journey: false,
   set: (patch) => set(patch),
 }));
 

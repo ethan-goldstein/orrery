@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-14T19:31:34.973Z",
+ "generated": "2026-09-14T19:58:45.356Z",
  "textures": [
   {
    "id": "earth-clouds",
@@ -287,6 +287,89 @@
    "transforms": "resized to 1k/2k(/4k) equirectangular tiers, re-encoded WebP/AVIF",
    "sourceSha256": "d1875bcec83588ca25e4802e576f6bb9f88b39e1e403cb41ff55867419c54796",
    "sourceWidth": 8192
+  },
+  {
+   "id": "moon-height",
+   "files": {
+    "1k": {
+     "webp": "textures/moon/moon-height-1k.webp"
+    },
+    "2k": {
+     "webp": "textures/moon/moon-height-2k.webp"
+    },
+    "4k": {
+     "webp": "textures/moon/moon-height-4k.webp"
+    }
+   },
+   "colorSpace": "linear",
+   "source": {
+    "title": "NASA SVS CGI Moon Kit, LOLA elevation (16 ppd)",
+    "url": "https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/ldem_16_uint.tif"
+   },
+   "license": {
+    "spdx": "NASA",
+    "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+   },
+   "attribution": "NASA SVS / LOLA (Lunar Orbiter Laser Altimeter)",
+   "transforms": "uint16 elevation resampled to tiers; normal map computed by central differences (moon-normal-*)",
+   "sourceSha256": "45a2b32d56e81ed30db07fead8abc842b249b6511219d9ca2c53f81bc2dc5d62",
+   "sourceWidth": 5760
+  },
+  {
+   "id": "moon-lroc",
+   "files": {
+    "1k": {
+     "webp": "textures/moon/moon-lroc-1k.webp",
+     "avif": "textures/moon/moon-lroc-1k.avif"
+    },
+    "2k": {
+     "webp": "textures/moon/moon-lroc-2k.webp",
+     "avif": "textures/moon/moon-lroc-2k.avif"
+    },
+    "4k": {
+     "webp": "textures/moon/moon-lroc-4k.webp"
+    }
+   },
+   "colorSpace": "srgb",
+   "source": {
+    "title": "NASA SVS CGI Moon Kit, LROC WAC color mosaic",
+    "url": "https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/lroc_color_poles_4k.tif"
+   },
+   "license": {
+    "spdx": "NASA",
+    "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+   },
+   "attribution": "NASA Scientific Visualization Studio / Ernie Wright; LROC WAC (Arizona State University)",
+   "transforms": "resized to 1k/2k/4k tiers, re-encoded WebP/AVIF",
+   "sourceSha256": "918649a7f8ed2f1329b2cd95bb0d25483befdcb60ae1a66db681a637cc21344f",
+   "sourceWidth": 4096
+  },
+  {
+   "id": "moon-normal",
+   "files": {
+    "1k": {
+     "webp": "textures/moon/moon-normal-1k.webp"
+    },
+    "2k": {
+     "webp": "textures/moon/moon-normal-2k.webp"
+    },
+    "4k": {
+     "webp": "textures/moon/moon-normal-4k.webp"
+    }
+   },
+   "colorSpace": "linear",
+   "source": {
+    "title": "NASA SVS CGI Moon Kit, LOLA elevation (16 ppd)",
+    "url": "https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/ldem_16_uint.tif"
+   },
+   "license": {
+    "spdx": "NASA",
+    "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+   },
+   "attribution": "NASA SVS / LOLA (Lunar Orbiter Laser Altimeter)",
+   "transforms": "tangent-space normal map from LOLA elevation, relief x8",
+   "sourceSha256": "45a2b32d56e81ed30db07fead8abc842b249b6511219d9ca2c53f81bc2dc5d62",
+   "sourceWidth": 5760
   },
   {
    "id": "neptune",

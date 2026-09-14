@@ -3,6 +3,7 @@ import { ROUTES } from '@/app/route-list';
 import { useExperience } from '@/store/experience';
 import { useState } from 'react';
 import { SourcesDialog } from '@/ui/SourcesDialog';
+import { SettingsButton } from '@/ui/Settings';
 
 export function Header() {
   const [location] = useLocation();
@@ -30,6 +31,7 @@ export function Header() {
         <button className="text-fog-2 hover:text-fog" onClick={() => setSources(true)} data-testid="sources-button">
           Sources ↗
         </button>
+        <SettingsButton />
         <a href="https://github.com/ethan-goldstein/orrery" target="_blank" rel="noopener noreferrer" className="text-fog-2 hover:text-fog">
           GitHub ↗
         </a>

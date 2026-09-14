@@ -1,7 +1,7 @@
 import { createStore } from 'zustand/vanilla';
 import { useStore } from 'zustand';
 
-export type SolarView = 'system' | 'planet' | 'moons' | 'inner';
+export type SolarView = 'system' | 'planet' | 'moons' | 'inner' | 'compare';
 
 export interface SolarTelemetry {
   /** distance from focus to its parent, km */

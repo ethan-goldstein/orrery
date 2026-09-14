@@ -15,6 +15,7 @@ const VIEWS: { id: SolarView; label: string }[] = [
   { id: 'planet', label: 'Planet' },
   { id: 'moons', label: 'Moons' },
   { id: 'inner', label: 'Inner worlds' },
+  { id: 'compare', label: 'Compare sizes' },
 ];
 
 export default function SolarPage() {
@@ -102,8 +103,8 @@ export default function SolarPage() {
 
   const info = bodyInfo(focus);
   const moons = moonsOf(info.kind === 'moon' ? info.parent! : focus);
-  const headline = view === 'system' ? 'Everything in motion.' : view === 'inner' ? 'Our stellar neighborhood.' : view === 'moons' ? `${bodyInfo(info.kind === 'moon' ? info.parent! : focus).name} & its moons.` : `${info.name}.`;
-  const kicker = view === 'system' ? 'Beyond our world' : view === 'inner' ? 'The rocky worlds' : info.kind === 'moon' ? `Moon of ${bodyInfo(info.parent!).name}` : info.kind;
+  const headline = view === 'compare' ? 'Side by side.' : view === 'system' ? 'Everything in motion.' : view === 'inner' ? 'Our stellar neighborhood.' : view === 'moons' ? `${bodyInfo(info.kind === 'moon' ? info.parent! : focus).name} & its moons.` : `${info.name}.`;
+  const kicker = view === 'compare' ? 'True relative sizes' : view === 'system' ? 'Beyond our world' : view === 'inner' ? 'The rocky worlds' : info.kind === 'moon' ? `Moon of ${bodyInfo(info.parent!).name}` : info.kind;
 
   if (cleanView) return null;
   return (
@@ -113,7 +114,7 @@ export default function SolarPage() {
         <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mt-2 transition-opacity" key={headline}>
           {headline}
         </h1>
-        <p className="mt-2 text-fog-2">{view === 'system' ? 'Eight worlds. One star. Real positions for any date you choose.' : info.tagline}</p>
+        <p className="mt-2 text-fog-2">{view === 'compare' ? 'Every world at its true radius, in a row. The Sun on the left is 109 Earths wide; drag to see how little of it fits.' : view === 'system' ? 'Eight worlds. One star. Real positions for any date you choose.' : info.tagline}</p>
         <div className="mt-5 flex flex-wrap gap-2" data-ui>
           {VIEWS.map((v) => (
             <button key={v.id} className="chip" aria-pressed={view === v.id} onClick={() => set.setView(v.id)} disabled={v.id === 'moons' && moons.length === 0} style={v.id === 'moons' && moons.length === 0 ? { opacity: 0.4 } : undefined}>

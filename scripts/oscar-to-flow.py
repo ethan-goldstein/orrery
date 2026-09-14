@@ -64,7 +64,8 @@ json.dump(meta, open('public/data/oceans/index.json', 'w'), indent=1)
 open('public/data/oceans/README.md', 'w').write(f"""# Ocean surface currents
 
 OSCAR (Ocean Surface Current Analyses Real-time) third-degree sea surface velocity for {date}, a 5-day composite
-from NASA/JPL PO.DAAC, retrieved through NOAA CoastWatch ERDDAP (dataset jplOscar, no login required).
+from NASA/JPL PO.DAAC (https://podaac.jpl.nasa.gov/dataset/OSCAR_L4_OC_third-deg), retrieved through NOAA CoastWatch ERDDAP
+(https://coastwatch.pfeg.noaa.gov/erddap/griddap/jplOscar.html, no login required).
 Public domain (US Government work). Encoded as a {W} x {H} RGBA flow texture: {meta['encoding']}.
 Max speed {meta['maxSpeed']:.2f} m/s, mean {meta['meanSpeed']:.2f} m/s. The Oceans page advects particles through this
 field; trails are accelerated for legibility.

@@ -116,7 +116,7 @@ writeFileSync(
 ${out.length} objects (${counts[0] ?? 0} payloads, ${counts[1] ?? 0} rocket bodies, ${counts[2] ?? 0} debris, ${counts[3] ?? 0} unknown)
 from CelesTrak general perturbations data (groups: ${GROUPS.join(', ')}) joined with the CelesTrak SATCAT
 for object type, owner and launch date. Snapshot ${snapshot}, sha256 ${createHash('sha256').update(json).digest('hex').slice(0, 16)}.
-CelesTrak data are provided free for public use (https://celestrak.org/NORAD/documentation/gp-data-formats.php).
+License: CelesTrak data are provided free for public use (https://celestrak.org/NORAD/documentation/gp-data-formats.php).
 Positions are propagated in the browser with SGP4 (satellite.js) from this snapshot; they drift from truth by
 kilometres per day and are not a conjunction or tracking product.
 `,

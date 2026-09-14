@@ -23,7 +23,8 @@ by hand; no license restrictions apply to the coordinates. Mission blurbs are or
 ### Ocean surface currents
 
 OSCAR (Ocean Surface Current Analyses Real-time) third-degree sea surface velocity for 2014-09-26, a 5-day composite
-from NASA/JPL PO.DAAC, retrieved through NOAA CoastWatch ERDDAP (dataset jplOscar, no login required).
+from NASA/JPL PO.DAAC (https://podaac.jpl.nasa.gov/dataset/OSCAR_L4_OC_third-deg), retrieved through NOAA CoastWatch ERDDAP
+(https://coastwatch.pfeg.noaa.gov/erddap/griddap/jplOscar.html, no login required).
 Public domain (US Government work). Encoded as a 1024 x 512 RGBA flow texture: R=(u/3+0.5), G=(v/3+0.5) in m/s, B=speed/2, A=valid; equirectangular -180..180 x 90..-90.
 Max speed 2.90 m/s, mean 0.15 m/s. The Oceans page advects particles through this
 field; trails are accelerated for legibility.
@@ -33,7 +34,7 @@ field; trails are accelerated for legibility.
 19799 objects (16564 payloads, 2 rocket bodies, 2666 debris, 567 unknown)
 from CelesTrak general perturbations data (groups: active, stations, analyst, cosmos-1408-debris, fengyun-1c-debris, iridium-33-debris, cosmos-2251-debris, 1999-025, 2019-006) joined with the CelesTrak SATCAT
 for object type, owner and launch date. Snapshot 2026-09-14, sha256 22480b898dfbec9c.
-CelesTrak data are provided free for public use (https://celestrak.org/NORAD/documentation/gp-data-formats.php).
+License: CelesTrak data are provided free for public use (https://celestrak.org/NORAD/documentation/gp-data-formats.php).
 Positions are propagated in the browser with SGP4 (satellite.js) from this snapshot; they drift from truth by
 kilometres per day and are not a conjunction or tracking product.
 

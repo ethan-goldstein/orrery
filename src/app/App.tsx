@@ -9,6 +9,8 @@ import { parseSharedState } from './url-state';
 import { clockStore } from '@/store/clock';
 import { settingsStore } from '@/store/settings';
 import { CommandPalette } from '@/ui/CommandPalette';
+import { ShortcutsOverlay } from '@/ui/ShortcutsOverlay';
+import { MobileSheet } from '@/ui/shell/MobileSheet';
 import { installGlobalShortcuts } from './shortcuts';
 import { useExperience as useExperienceState } from '@/store/experience';
 
@@ -43,7 +45,8 @@ export function App() {
         <div className="chrome">
           <Header />
           <Suspense fallback={<div className="p-6 kicker">Loading…</div>}>
-            <Switch>
+            <MobileSheet>
+              <Switch>
               {ROUTES.map((r) => {
                 const Page = pages[r.id]!;
                 return (
@@ -52,10 +55,11 @@ export function App() {
                   </Route>
                 );
               })}
-              <Route>
-                <NotFound />
-              </Route>
-            </Switch>
+                <Route>
+                  <NotFound />
+                </Route>
+              </Switch>
+            </MobileSheet>
           </Suspense>
           <div className="flex flex-col gap-2 p-4">
             <StatusLine />
@@ -63,6 +67,7 @@ export function App() {
           </div>
         </div>
         <CommandPalette />
+        <ShortcutsOverlay />
         <JourneyVeil />
       </EngineProvider>
     </Router>

@@ -3,13 +3,47 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { fileURLToPath } from 'node:url';
 import { staticRoutes } from './tooling/vite-plugin-static-routes.ts';
+import { VitePWA } from 'vite-plugin-pwa';
 import { ROUTES } from './src/app/route-list.ts';
 
 const base = process.env.BASE_PATH ?? '/';
 
 export default defineConfig({
   base,
-  plugins: [react(), tailwindcss(), staticRoutes(ROUTES)],
+  plugins: [
+    react(),
+    tailwindcss(),
+    staticRoutes(ROUTES),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['icons/*.png', 'icons/*.svg'],
+      manifest: {
+        name: 'Orrery',
+        short_name: 'Orrery',
+        description: 'An atlas of worlds. Earth, the Moon and the Solar System rendered from real ephemerides.',
+        theme_color: '#04060b',
+        background_color: '#04060b',
+        display: 'standalone',
+        start_url: base,
+        scope: base,
+        icons: [
+          { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+      },
+      workbox: {
+        // app shell is precached; heavy textures and datasets are cached on first use
+        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
+        globIgnores: ['**/textures/**', '**/data/**', '**/icons/**'],
+        navigateFallback: `${base}index.html`,
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+        runtimeCaching: [
+          { urlPattern: /\/(textures|data)\//, handler: 'CacheFirst', options: { cacheName: 'orrery-assets', expiration: { maxEntries: 400, maxAgeSeconds: 60 * 60 * 24 * 90 } } },
+        ],
+      },
+    }),
+  ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

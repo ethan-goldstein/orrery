@@ -266,6 +266,9 @@ export class SolarExperience extends Experience {
     return view === 'system' || view === 'inner' ? (trueScale ? 1 : 0) : 1;
   }
 
+  /** Line-up order for the compare view: Sun first, then planets by distance, then the Moon and Pluto. */
+  private static readonly LINEUP = ['sun', 'mercury', 'venus', 'earth', 'moon', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'];
+
   private animateScale(to: number): void {
     if (Math.abs(to - this.scaleTo) < 1e-6) return;
     this.scaleFrom = this.scaleMix;
@@ -300,6 +303,11 @@ export class SolarExperience extends Experience {
       const far = Math.max(...moons.map((m) => Math.hypot(m.display[0] - focus.display[0], m.display[1] - focus.display[1], m.display[2] - focus.display[2])));
       return this.fitRadius(far, 1.15);
     }
+    if (view === 'compare') {
+      const first = this.nodes.get('mercury')!;
+      const last = this.nodes.get('pluto')!;
+      return this.fitRadius((last.display[0] - first.display[0]) * 0.55 + last.displayRadius, 1.15);
+    }
     if (view === 'inner') {
       const mars = this.nodes.get('mars')!;
       return this.fitRadius(Math.hypot(...mars.display), 1.25);
@@ -312,7 +320,7 @@ export class SolarExperience extends Experience {
     const clock = clockStore.getState();
     this.updatePositions(clock.epochMs, this.scaleMix);
     const focusNode = this.nodes.get(focus) ?? this.nodes.get('sun')!;
-    const anchorId = view === 'system' || view === 'inner' ? 'sun' : focus;
+    const anchorId = view === 'system' || view === 'inner' ? 'sun' : view === 'compare' ? 'saturn' : focus;
     const anchor = this.nodes.get(anchorId)!;
     // re-centre the scene on the anchor, keeping the camera where it is
     const prev = this.nodes.get(this.originId)!;
@@ -321,8 +329,8 @@ export class SolarExperience extends Experience {
     this.rig.pose.target.sub(delta);
     this.updatePositions(clock.epochMs, this.scaleMix);
     const distance = this.fitDistance(anchor, view);
-    const phi = view === 'planet' ? 1.35 : view === 'moons' ? 1.15 : 1.02;
-    let theta = this.rig.pose.theta;
+    const phi = view === 'planet' ? 1.35 : view === 'moons' ? 1.15 : view === 'compare' ? 1.5 : 1.02;
+    let theta = view === 'compare' ? Math.PI / 2 : this.rig.pose.theta;
     if (view === 'planet' && anchorId !== 'sun') {
       // stand between the Sun and the world, a little to one side so the terminator shows
       const sunDir = new THREE.Vector3().subVectors(this.nodes.get('sun')!.scene, anchor.scene).normalize();
@@ -382,6 +390,19 @@ export class SolarExperience extends Experience {
       node.display = [parent.display[0] + rel[0] * k, parent.display[1] + rel[1] * k, parent.display[2] + rel[2] * k];
       node.displayRadius = blendLog(info.illustratedRadiusUnits * 0.35, info.radiusKm * UNITS_PER_KM, mix);
       node.visible = true;
+    }
+    if (solarStore.getState().view === 'compare') {
+      // true radii side by side along +X, touching with a small gap, the Sun on the left
+      let x = 0;
+      let prev = 0;
+      for (const id of SolarExperience.LINEUP) {
+        const node = this.nodes.get(id)!;
+        node.displayRadius = node.info.radiusKm * UNITS_PER_KM;
+        x += prev + node.displayRadius + (prev ? Math.max(0.6, (prev + node.displayRadius) * 0.08) : 0);
+        node.display = [x, 0, 0];
+        prev = node.displayRadius;
+      }
+      for (const node of this.nodes.values()) if (!SolarExperience.LINEUP.includes(node.info.id)) node.visible = false;
     }
     const origin = this.nodes.get(this.originId)!;
     for (const node of this.nodes.values()) {
@@ -547,11 +568,12 @@ export class SolarExperience extends Experience {
       const px = (node.displayRadius / dist) * fovScale;
       const isMoon = info.kind === 'moon';
       const moonRelevant = !isMoon || info.parent === state.focus || info.id === state.focus || (focusNode.info.kind === 'moon' && info.parent === focusNode.info.parent);
-      const showMoon = moonRelevant && (this.scaleMix > 0.5 || state.view === 'moons' || state.view === 'planet');
+      const showMoon = state.view === 'compare' ? info.id === 'moon' : moonRelevant && (this.scaleMix > 0.5 || state.view === 'moons' || state.view === 'planet');
       const visible = node.visible && (!isMoon || showMoon);
       node.group.visible = visible;
       if (node.path) {
         const wide = state.view === 'system' || state.view === 'inner';
+        if (state.view === 'compare') node.path.line.visible = false;
         node.path.line.visible = node.path.line.visible && visible && (isMoon ? !wide : wide);
       }
       if (!visible) continue;
@@ -661,6 +683,7 @@ export class SolarExperience extends Experience {
     cmds.push({ id: 'view:system', label: 'View: Solar System', group: 'Views', run: () => s.setView('system') });
     cmds.push({ id: 'view:inner', label: 'View: Inner worlds', group: 'Views', run: () => s.setView('inner') });
     cmds.push({ id: 'view:moons', label: 'View: Moons of the selected world', group: 'Views', run: () => s.setView('moons') });
+    cmds.push({ id: 'view:compare', label: 'View: Compare sizes side by side', group: 'Views', run: () => s.setView('compare') });
     cmds.push({ id: 'scale', label: 'Toggle true scale', group: 'Display', run: () => s.setTrueScale(!solarStore.getState().trueScale) });
     cmds.push({ id: 'paths', label: 'Toggle orbital paths', group: 'Display', run: () => s.setPaths(!solarStore.getState().paths) });
     cmds.push({ id: 'tour', label: 'Start the grand tour', group: 'Display', run: () => s.setTour(true) });

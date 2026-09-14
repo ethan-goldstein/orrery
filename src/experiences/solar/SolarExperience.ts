@@ -67,6 +67,8 @@ export class SolarExperience extends Experience {
   private scaleFrom = 0;
   private scaleTo = 0;
   private scaleT = 1;
+  private scaleStart = 0;
+  private static readonly SCALE_SECONDS = 1.4;
   private lastPathMs = -Infinity;
   private lastPathMix = -1;
   private pathsGroup = new THREE.Group();
@@ -269,6 +271,7 @@ export class SolarExperience extends Experience {
     this.scaleFrom = this.scaleMix;
     this.scaleTo = to;
     this.scaleT = 0;
+    this.scaleStart = performance.now();
   }
 
   private onFocusOrView(focus: string, view: SolarView, prevView: SolarView): void {
@@ -580,7 +583,7 @@ export class SolarExperience extends Experience {
     const state = solarStore.getState();
     // scale animation
     if (this.scaleT < 1) {
-      this.scaleT = Math.min(1, this.scaleT + dt / 1.4);
+      this.scaleT = Math.min(1, (performance.now() - this.scaleStart) / (SolarExperience.SCALE_SECONDS * 1000));
       this.scaleMix = this.scaleFrom + (this.scaleTo - this.scaleFrom) * quintic(this.scaleT);
       if (Math.abs(state.scaleMix - this.scaleMix) > 0.01 || this.scaleT === 1) solarStore.setState({ scaleMix: this.scaleMix });
     }

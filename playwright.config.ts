@@ -8,8 +8,13 @@ export default defineConfig({
   timeout: 60_000,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? 'github' : 'list',
+  expect: { timeout: process.env.CI ? 20_000 : 10_000 },
   use: {
     baseURL: `http://localhost:${port}${base}`,
+    // CI has no GPU: force the low quality tier so software rendering keeps up
+    storageState: process.env.CI
+      ? { cookies: [], origins: [{ origin: `http://localhost:${port}`, localStorage: [{ name: 'orrery.settings.v1', value: JSON.stringify({ quality: 'low', labels: true, grain: false, units: 'metric' }) }] }] }
+      : undefined,
     trace: 'retain-on-failure',
     launchOptions: { args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] },
   },

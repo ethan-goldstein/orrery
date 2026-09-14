@@ -29,7 +29,7 @@ export class CameraRig {
   zoomSpeed = 1;
   damping = 8;
   private velocity = { theta: 0, phi: 0, zoom: 0 };
-  private flight: { from: Pose; to: Pose; t: number; duration: number; resolve: () => void } | null = null;
+  private flight: { from: Pose; to: Pose; t: number; duration: number; start: number; resolve: () => void } | null = null;
   private pointers = new Map<number, { x: number; y: number }>();
   private pinchDistance = 0;
   private reducedMotion = false;
@@ -137,6 +137,7 @@ export class CameraRig {
         from: { ...this.pose, target: this.pose.target.clone() },
         to,
         t: 0,
+        start: performance.now(),
         duration: this.reducedMotion ? 0.2 : durationSeconds,
         resolve,
       };
@@ -165,7 +166,7 @@ export class CameraRig {
     const p = this.pose;
     if (this.flight) {
       const f = this.flight;
-      f.t = Math.min(1, f.t + dt / f.duration);
+      f.t = Math.min(1, (performance.now() - f.start) / (f.duration * 1000));
       const k = quintic(f.t);
       p.theta = f.from.theta + (f.to.theta - f.from.theta) * k;
       p.phi = f.from.phi + (f.to.phi - f.from.phi) * k;

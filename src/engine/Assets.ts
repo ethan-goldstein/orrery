@@ -26,6 +26,8 @@ export interface Manifest {
 let manifestPromise: Promise<Manifest> | null = null;
 const cache = new Map<string, Promise<THREE.Texture>>();
 const loader = new THREE.TextureLoader();
+// ImageBitmap decodes off the main thread; fall back to <img> where unsupported (old Safari)
+const bitmapLoader = typeof createImageBitmap === 'function' ? new THREE.ImageBitmapLoader().setOptions({ imageOrientation: 'flipY', premultiplyAlpha: 'none', colorSpaceConversion: 'none' }) : null;
 let avifSupported: Promise<boolean> | null = null;
 
 export function loadManifest(): Promise<Manifest> {
@@ -62,7 +64,15 @@ export async function loadTexture(id: string, tier: TextureTier): Promise<THREE.
       const avif = await supportsAvif();
       const file = (avif && files.avif) || files.webp || files.jpg || files.png;
       if (!file) throw new Error(`Texture "${id}" has no usable format`);
-      const tex = await loader.loadAsync(assetUrl(file));
+      let tex: THREE.Texture;
+      if (bitmapLoader) {
+        const bitmap = await bitmapLoader.loadAsync(assetUrl(file));
+        tex = new THREE.Texture(bitmap);
+        tex.flipY = false;
+        tex.needsUpdate = true;
+      } else {
+        tex = await loader.loadAsync(assetUrl(file));
+      }
       tex.colorSpace = entry.colorSpace === 'srgb' ? THREE.SRGBColorSpace : THREE.LinearSRGBColorSpace;
       tex.anisotropy = 8;
       tex.generateMipmaps = true;

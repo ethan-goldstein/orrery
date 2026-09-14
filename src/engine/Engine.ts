@@ -68,8 +68,9 @@ export class Engine {
     this.renderer.canvas.dataset.experienceState = 'loading';
     try {
       await exp.mount({ renderer: this.renderer, stage: this.stage, signal: abort.signal });
-      // parallel shader compilation keeps the first frames off the main thread's critical path
-      if (!abort.signal.aborted) {
+      // parallel shader compilation keeps the first frames off the main thread's critical path;
+      // without the extension it would only front-load synchronous compiles of hidden materials
+      if (!abort.signal.aborted && this.renderer.gl.extensions.has('KHR_parallel_shader_compile')) {
         this.compiling = true;
         try {
           await this.renderer.gl.compileAsync(exp.scene, exp.camera);

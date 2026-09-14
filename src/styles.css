@@ -61,17 +61,19 @@ kbd { font: 11px var(--font-mono); padding: 1px 5px; border-radius: 4px; backgro
 .journey-veil { position: fixed; inset: 0; z-index: 3; background: var(--color-ink); pointer-events: none; opacity: 0; transition: opacity 0.45s ease; }
 .journey-veil[data-active="true"] { opacity: 1; transition-duration: 0.2s; }
 
-.mobile-sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 4; display: flex; flex-direction: column; max-height: 78vh; background: color-mix(in srgb, var(--color-ink-2) 92%, transparent); backdrop-filter: blur(14px); border-top: 1px solid rgba(255,255,255,0.08); border-radius: 18px 18px 0 0; transform: translateY(calc(100% - 52px)); transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); padding-bottom: env(safe-area-inset-bottom); }
+.mobile-sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 4; display: flex; flex-direction: column; max-height: 78vh; --peek: 78px; background: color-mix(in srgb, var(--color-ink-2) 92%, transparent); backdrop-filter: blur(14px); border-top: 1px solid rgba(255,255,255,0.08); border-radius: 18px 18px 0 0; transform: translateY(calc(100% - var(--peek))); transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); padding-bottom: env(safe-area-inset-bottom); }
 .mobile-sheet[data-open="true"] { transform: translateY(0); }
-.mobile-sheet-handle { height: 52px; width: 100%; background: transparent; border: 0; color: var(--color-fog); font-size: 13px; letter-spacing: 0.04em; }
+.mobile-sheet-handle { min-height: var(--peek); width: 100%; background: transparent; border: 0; color: var(--color-fog); font-size: 13px; letter-spacing: 0.04em; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 16px; }
+.mobile-sheet-title { font-size: 1.35rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; text-align: center; }
+.mobile-sheet-hint { color: var(--color-fog-2); font-size: 12px; }
 .mobile-sheet-body { overflow-y: auto; padding-bottom: 12px; }
 .mobile-sheet-body > section { padding: 0 20px 12px !important; max-width: none !important; pointer-events: auto !important; }
 .mobile-sheet-body h1 { font-size: 1.75rem !important; }
 @media (max-width: 767px) {
   .chrome { grid-template-rows: auto 1fr auto; }
-  .chrome > .flex.flex-col { position: fixed; left: 0; right: 0; bottom: 56px; padding: 8px 12px; z-index: 5; pointer-events: none; }
+  .chrome > .flex.flex-col { position: fixed; left: 0; right: 0; bottom: 82px; padding: 8px 12px; z-index: 5; pointer-events: none; }
   .chrome > .flex.flex-col > * { pointer-events: auto; }
   .mobile-sheet[data-open="true"] ~ * .flex.flex-col { display: none; }
   nav[aria-label="Worlds"] ul { max-width: calc(100vw - 2rem); }
-  .fixed.bottom-20 { bottom: 64px !important; }
+  .fixed.bottom-20 { bottom: 90px !important; }
 }

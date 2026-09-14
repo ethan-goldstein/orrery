@@ -7,6 +7,8 @@ import { AU_KM } from '@/astro/scale';
 import { assetUrl, loadManifest, type Manifest } from '@/engine/Assets';
 import { useExperience as useExperienceState } from '@/store/experience';
 import { writeUrl } from '@/app/url-state';
+import { upcomingEvents, type AstroEvent } from '@/astro/events';
+import { clockStore, useClock } from '@/store/clock';
 
 const factory = () => new SolarExperience();
 
@@ -144,9 +146,40 @@ export default function SolarPage() {
           )}
         </div>
       </section>
+      <Moments />
       <InfoPanel id={focus} />
       <PlanetStrip />
     </>
+  );
+}
+
+/** Jump-to buttons for the next eclipse, full moon and season; the renderer's eclipse shadows do the rest. */
+function Moments() {
+  const epochMs = useClock((s) => s.epochMs);
+  const day = Math.floor(epochMs / 86_400_000);
+  const [events, setEvents] = useState<AstroEvent[]>([]);
+  useEffect(() => {
+    try {
+      setEvents(upcomingEvents(epochMs));
+    } catch {
+      setEvents([]);
+    }
+  }, [day]);
+  if (events.length === 0) return null;
+  const go = (e: AstroEvent) => {
+    clockStore.getState().setEpoch(e.ms);
+    clockStore.getState().setRate(60);
+    solarStore.getState().setFocus(e.focus, 'planet');
+  };
+  return (
+    <div className="fixed left-5 md:left-8 bottom-44 md:bottom-40 flex flex-wrap gap-2 max-w-md" data-ui data-testid="moments">
+      <span className="kicker self-center">Moments</span>
+      {events.map((e) => (
+        <button key={e.id} className="chip" onClick={() => go(e)} title={e.detail} data-event={e.id}>
+          {e.label}
+        </button>
+      ))}
+    </div>
   );
 }
 

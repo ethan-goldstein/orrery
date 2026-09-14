@@ -78,6 +78,14 @@ test('time survives a century jump without NaN', async ({ page }) => {
   expect(errors, errors.join('\n')).toEqual([]);
 });
 
+test('Moments jump to the August 2026 total solar eclipse and focus Earth', async ({ page }) => {
+  await page.goto('./solar?t=2026-07-01T00:00:00Z&rate=0');
+  const canvas = await ready(page);
+  await page.locator('[data-testid="moments"] button[data-event="solar-eclipse"]').click();
+  await expect(page.locator('[data-testid="sim-time"]')).toContainText('2026-08-12');
+  await expect(canvas).toHaveAttribute('data-focus', 'earth');
+});
+
 test('command palette opens with Cmd/Ctrl+K and navigates', async ({ page }) => {
   await page.goto('./solar?t=2026-09-14T12:00:00Z&rate=0');
   const canvas = await ready(page);

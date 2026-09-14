@@ -20,6 +20,7 @@ export class Engine {
   private abort: AbortController | null = null;
   private lastClockTick = performance.now();
   private unsubscribers: (() => void)[] = [];
+  private compiling = false;
 
   constructor(readonly container: HTMLElement, readonly stage: HTMLElement) {
     const probeCanvas = document.createElement('canvas');
@@ -67,6 +68,16 @@ export class Engine {
     this.renderer.canvas.dataset.experienceState = 'loading';
     try {
       await exp.mount({ renderer: this.renderer, stage: this.stage, signal: abort.signal });
+      // parallel shader compilation keeps the first frames off the main thread's critical path
+      if (!abort.signal.aborted) {
+        this.compiling = true;
+        try {
+          await this.renderer.gl.compileAsync(exp.scene, exp.camera);
+        } catch {
+          /* fall back to synchronous compile on first render */
+        }
+        this.compiling = false;
+      }
       if (!abort.signal.aborted) {
         this.renderer.canvas.dataset.experienceState = 'ready';
         experienceStore.getState().set({ commands: exp.commands() });
@@ -99,6 +110,7 @@ export class Engine {
     if (next !== clock) clockStore.setState(next);
     if (!this.current || !this.composer) return;
     this.current.update(dt, next);
+    if (this.compiling) return;
     this.composer.render(dt);
   }
 

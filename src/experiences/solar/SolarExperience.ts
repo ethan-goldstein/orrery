@@ -6,6 +6,7 @@ import { CameraRig } from '@/engine/CameraRig';
 import { Labels, type LabelEntry } from '@/engine/Labels';
 import { Picker } from '@/engine/Picker';
 import { OrbitLine } from '@/engine/OrbitLine';
+import { LensFlare } from '@/engine/LensFlare';
 import { loadTexture } from '@/engine/Assets';
 import { createPlanetMaterial } from '@/engine/materials/PlanetMaterial';
 import { createSunMaterial, createCoronaSprite } from '@/engine/materials/SunMaterial';
@@ -59,6 +60,7 @@ export class SolarExperience extends Experience {
   private ready = false;
   private nodes = new Map<string, Node>();
   private sunLight = new THREE.PointLight(0xfff4e0, 3.2, 0, 0);
+  private flare = new LensFlare();
   private markers!: THREE.Points;
   private markerPositions!: Float32Array;
   private markerColors!: Float32Array;
@@ -87,7 +89,7 @@ export class SolarExperience extends Experience {
     this.camera.near = 0.02;
     this.camera.far = 5e7;
     this.camera.updateProjectionMatrix();
-    this.scene.add(this.stars.points, this.pathsGroup, this.sunLight, new THREE.AmbientLight(0x1a2233, 0.12));
+    this.scene.add(this.stars.points, this.pathsGroup, this.sunLight, this.flare.group, new THREE.AmbientLight(0x1a2233, 0.12));
     this.stars.setPixelRatio(ctx.renderer.gl.getPixelRatio());
 
     // bodies
@@ -644,6 +646,14 @@ export class SolarExperience extends Experience {
     this.updateTrails(ms, this.scaleMix);
     this.rig.update(dt);
     this.updateMarkersAndLabels();
+    // lens flare from the Sun, hidden behind the focused world
+    {
+      const focusNode = this.nodes.get(state.focus)!;
+      const occluder = state.focus === 'sun' ? null : { center: focusNode.scene, radius: focusNode.displayRadius };
+      const camDist = this.camera.position.distanceTo(sun.scene);
+      const sunPx = (sun.displayRadius / camDist) * ((this.ctx.stage.clientHeight || 1) / (2 * Math.tan((this.camera.fov * Math.PI) / 360)));
+      this.flare.update(this.camera, sun.scene, occluder, this.ctx.renderer.tier.bloom ? Math.min(1, 0.25 + sunPx / 60) : 0);
+    }
     // tour
     if (state.tour) {
       this.tourTimer += dt;
@@ -698,6 +708,7 @@ export class SolarExperience extends Experience {
     (this.picker as Picker | undefined)?.dispose();
     this.stars.dispose();
     this.milkyWay?.dispose();
+    this.flare.dispose();
     for (const node of this.nodes.values()) {
       node.path?.dispose();
       node.trail?.dispose();

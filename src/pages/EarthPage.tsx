@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useEngine, useExperience } from '@/app/EngineContext';
 import { EarthExperience, clampMa } from '@/experiences/earth/EarthExperience';
 import { ERA_KIND_LABEL, ERAS, eraAt, formatAge, maToSlider, sliderToMa } from '@/experiences/earth/eras';
@@ -10,7 +10,7 @@ let current: EarthExperience | null = null;
 const factory = () => (current = new EarthExperience());
 
 export default function EarthPage() {
-  useMemo(() => {
+  useEffect(() => {
     const p = new URLSearchParams(window.location.search);
     const ma = Number(p.get('ma'));
     const light = p.get('light');

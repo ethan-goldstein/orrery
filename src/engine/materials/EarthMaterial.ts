@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { shadowPars, shadowUniforms } from './shadows.glsl';
+import { applyLogDepth } from './logDepth';
 
 export interface EarthMaps {
   day: THREE.Texture;
@@ -107,12 +108,13 @@ export function createEarthMaterial(maps: EarthMaps): THREE.ShaderMaterial & { s
       }`,
   }) as THREE.ShaderMaterial & { shadowUniforms: ReturnType<typeof shadowUniforms> };
   mat.shadowUniforms = uniforms;
+  applyLogDepth(mat);
   return mat;
 }
 
 /** Separate cloud sphere slightly above the surface. */
 export function createCloudMaterial(clouds: THREE.Texture): THREE.ShaderMaterial {
-  return new THREE.ShaderMaterial({
+  return applyLogDepth(new THREE.ShaderMaterial({
     uniforms: {
       uClouds: { value: clouds },
       uSunDir: { value: new THREE.Vector3(1, 0, 0) },
@@ -142,5 +144,5 @@ export function createCloudMaterial(clouds: THREE.Texture): THREE.ShaderMaterial
       }`,
     transparent: true,
     depthWrite: false,
-  });
+  }));
 }

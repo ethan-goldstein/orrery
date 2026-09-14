@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { applyLogDepth } from './logDepth';
 
 /**
  * Deep-time Earth. Blends two 8-bit PaleoDEM height frames by age, shades
@@ -11,7 +12,7 @@ import * as THREE from 'three';
 export function createHistoryEarthMaterial(opts: { day: THREE.Texture; night: THREE.Texture | null; clouds: THREE.Texture | null; specular: THREE.Texture | null }): THREE.ShaderMaterial {
   const empty = new THREE.DataTexture(new Uint8Array([128, 128, 128, 255]), 1, 1);
   empty.needsUpdate = true;
-  return new THREE.ShaderMaterial({
+  return applyLogDepth(new THREE.ShaderMaterial({
     uniforms: {
       uDay: { value: opts.day },
       uNight: { value: opts.night },
@@ -162,5 +163,5 @@ export function createHistoryEarthMaterial(opts: { day: THREE.Texture; night: TH
         return vec3(1.0, 0.3, 0.05) * smoothstep(0.45, 0.8, g) * heat * 1.2;
       }
       void main() {`),
-  });
+  }));
 }

@@ -10,7 +10,16 @@ const base = process.env.BASE_PATH ?? '/';
 export default defineConfig({
   base,
   plugins: [react(), tailwindcss(), staticRoutes(ROUTES)],
-  resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      // satellite.js ships optional wasm/pthreads builds behind subpath imports; the pthreads
+      // build references node:worker_threads, which the bundler cannot resolve for the browser.
+      '#wasm-single-thread': fileURLToPath(new URL('./src/shims/empty-wasm.ts', import.meta.url)),
+      '#wasm-multi-thread': fileURLToPath(new URL('./src/shims/empty-wasm.ts', import.meta.url)),
+    },
+  },
+  worker: { format: 'es' },
   build: {
     target: 'es2022',
     sourcemap: false,

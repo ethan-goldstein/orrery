@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useExperience } from '@/app/EngineContext';
 import { MoonExperience, type Site } from '@/experiences/moon/MoonExperience';
 import { moonStore, useMoon, type MoonPreset } from '@/store/moon';
@@ -20,7 +20,7 @@ const PRESETS: { id: MoonPreset; label: string }[] = [
 ];
 
 export default function MoonPage() {
-  useMemo(() => {
+  useEffect(() => {
     const p = new URLSearchParams(window.location.search);
     const site = p.get('site');
     const preset = p.get('preset') as MoonPreset | null;

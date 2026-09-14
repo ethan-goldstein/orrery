@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { shadowPars, shadowUniforms } from './shadows.glsl';
+import { applyLogDepth } from './logDepth';
 
 /** Ring geometry whose u runs radially from inner to outer edge. */
 export function createRingGeometry(inner: number, outer: number, segments = 256): THREE.BufferGeometry {
@@ -63,5 +64,6 @@ export function createRingMaterial(map: THREE.Texture | null, color: string, opa
     side: THREE.DoubleSide,
   }) as THREE.ShaderMaterial & { shadowUniforms: ReturnType<typeof shadowUniforms> };
   mat.shadowUniforms = uniforms;
+  applyLogDepth(mat);
   return mat;
 }

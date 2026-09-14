@@ -17,10 +17,10 @@ const pages: Record<string, LazyExoticComponent<ComponentType>> = {
   solar: lazy(() => import('@/pages/SolarPage')),
   earth: lazy(() => import('@/pages/EarthPage')),
   moon: lazy(() => import('@/pages/MoonPage')),
-  orbit: lazy(() => import('@/pages/PlaceholderPage').then((m) => ({ default: m.make('orbit') }))),
-  quakes: lazy(() => import('@/pages/PlaceholderPage').then((m) => ({ default: m.make('quakes') }))),
-  oceans: lazy(() => import('@/pages/PlaceholderPage').then((m) => ({ default: m.make('oceans') }))),
-  civilization: lazy(() => import('@/pages/PlaceholderPage').then((m) => ({ default: m.make('civilization') }))),
+  orbit: lazy(() => import('@/pages/OrbitPage')),
+  quakes: lazy(() => import('@/pages/QuakesPage')),
+  oceans: lazy(() => import('@/pages/OceansPage')),
+  civilization: lazy(() => import('@/pages/CivilizationPage')),
 };
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');

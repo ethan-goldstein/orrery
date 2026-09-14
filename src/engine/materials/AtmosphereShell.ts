@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { applyLogDepth } from './logDepth';
 
 /**
  * Two additive shells: an inner front-facing haze that brightens the day limb
@@ -42,8 +43,8 @@ export function createAtmosphereShells(color: string, twilight: string | undefin
   uOut.uPower.value = 5.5;
   uOut.uAlpha.value = 0.38;
   const geo = new THREE.SphereGeometry(1, 96, 64);
-  const inner = new THREE.Mesh(geo, new THREE.ShaderMaterial({ uniforms: uIn, vertexShader: vertex, fragmentShader: fragment(false), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.FrontSide }));
-  const outer = new THREE.Mesh(geo, new THREE.ShaderMaterial({ uniforms: uOut, vertexShader: vertex, fragmentShader: fragment(true), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.BackSide }));
+  const inner = new THREE.Mesh(geo, applyLogDepth(new THREE.ShaderMaterial({ uniforms: uIn, vertexShader: vertex, fragmentShader: fragment(false), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.FrontSide })));
+  const outer = new THREE.Mesh(geo, applyLogDepth(new THREE.ShaderMaterial({ uniforms: uOut, vertexShader: vertex, fragmentShader: fragment(true), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.BackSide })));
   inner.scale.setScalar(1 + thickness * 0.35);
   outer.scale.setScalar(1 + thickness * 2.2);
   inner.renderOrder = 2;

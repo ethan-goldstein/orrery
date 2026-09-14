@@ -42,7 +42,7 @@ export class EarthExperience extends Experience {
   private ready = false;
   private spin = 0;
   private unsub: (() => void)[] = [];
-  private playAccumulator = 0;
+  private lastWall = 0;
   private time = 0;
 
   override async mount(ctx: ExperienceContext): Promise<void> {
@@ -190,9 +190,11 @@ export class EarthExperience extends Experience {
     this.time += dt;
     const s = earthStore.getState();
     // story playback: constant slider speed, so every era gets equal time
+    const wall = performance.now();
+    const realDt = this.lastWall ? Math.min(1, (wall - this.lastWall) / 1000) : dt;
+    this.lastWall = wall;
     if (s.playing) {
-      this.playAccumulator += dt * s.speed;
-      const next = s.ma - dt * s.speed * 90; // ~50 s for the whole story at 1x
+      const next = s.ma - realDt * s.speed * 90; // ~50 s for the whole story at 1x
       if (next <= 0) s.set({ ma: 0, playing: false });
       else s.set({ ma: next });
     }

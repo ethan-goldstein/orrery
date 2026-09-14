@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useExperience } from '@/app/EngineContext';
 import { SolarExperience } from '@/experiences/solar/SolarExperience';
 import { solarStore, useSolar, type SolarView } from '@/store/solar';
@@ -19,7 +19,7 @@ const VIEWS: { id: SolarView; label: string }[] = [
 
 export default function SolarPage() {
   // read deep link before the experience mounts
-  useMemo(() => {
+  useEffect(() => {
     const p = new URLSearchParams(window.location.search);
     const body = p.get('body');
     const view = p.get('view') as SolarView | null;

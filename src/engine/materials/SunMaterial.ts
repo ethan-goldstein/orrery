@@ -1,11 +1,12 @@
 import * as THREE from 'three';
+import { applyLogDepth } from './logDepth';
 
 /**
  * Photosphere: texture modulated by animated granulation noise, limb
  * darkening, output above 1.0 so the bloom pass catches it.
  */
 export function createSunMaterial(map: THREE.Texture | null): THREE.ShaderMaterial {
-  return new THREE.ShaderMaterial({
+  return applyLogDepth(new THREE.ShaderMaterial({
     uniforms: {
       uMap: { value: map },
       uHasMap: { value: map ? 1 : 0 },
@@ -44,7 +45,7 @@ export function createSunMaterial(map: THREE.Texture | null): THREE.ShaderMateri
         col += vec3(1.0, 0.9, 0.7) * smoothstep(0.62, 0.9, g2) * 0.35;
         gl_FragColor = vec4(col * uIntensity, 1.0);
       }`,
-  });
+  }));
 }
 
 /** Additive radial-gradient corona sprite, several radii wide. */

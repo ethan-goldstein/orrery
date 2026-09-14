@@ -1,0 +1,17 @@
+{
+  "source": {
+    "title": "HYG Database v4 (astronexus)",
+    "url": "https://raw.githubusercontent.com/astronexus/HYG-Database/main/hyg/CURRENT/hygdata_v41.csv",
+    "homepage": "https://www.astronexus.com/projects/hyg"
+  },
+  "license": {
+    "spdx": "CC-BY-SA-4.0",
+    "url": "https://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  "attribution": "David Nash / Astronomy Nexus, HYG Database, CC BY-SA 4.0",
+  "retrieved": "2026-09-14T19:02:13.440Z",
+  "sha256": "d9f69fd86bbf90a4e4d52b4c5c53eacfa6dfc0bfdef85bfd94f095e0bebe4ebd",
+  "magnitudeLimit": 6.5,
+  "count": 8920,
+  "layout": "Float32 x5 per star: scene x, y, z (unit vector, ecliptic J2000 Y-up), visual magnitude, B-V"
+}

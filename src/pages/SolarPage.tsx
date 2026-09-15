@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useExperience } from '@/app/EngineContext';
 import { SolarExperience } from '@/experiences/solar/SolarExperience';
 import { solarStore, useSolar, type SolarView } from '@/store/solar';
-import { BODIES, bodyInfo, moonsOf, PLANETS } from '@/astro/bodies';
+import { BODIES, BODY_BY_ID, bodyInfo, moonsOf, PLANETS, type BodyInfo } from '@/astro/bodies';
+import { anyBodyInfo, CRAFT_BY_ID, isCraft } from '@/astro/spacecraft';
 import { AU_KM } from '@/astro/scale';
 import { assetUrl, loadManifest, type Manifest } from '@/engine/Assets';
 import { useExperience as useExperienceState } from '@/store/experience';
@@ -27,11 +28,12 @@ export default function SolarPage() {
     const body = p.get('body');
     const view = p.get('view') as SolarView | null;
     const patch: Partial<ReturnType<typeof solarStore.getState>> = {};
-    if (body && BODIES.some((b) => b.id === body)) patch.focus = body;
+    if (body && (BODIES.some((b) => b.id === body) || isCraft(body))) patch.focus = body;
     if (view && VIEWS.some((v) => v.id === view)) patch.view = view;
     else if (body) patch.view = 'planet';
     if (p.get('scale') === 'true') patch.trueScale = true;
     if (p.get('paths') === '0') patch.paths = false;
+    if (p.get('craft') === '0') patch.crafts = false;
     solarStore.setState(patch);
   }, []);
   useExperience('solar', factory);
@@ -41,6 +43,7 @@ export default function SolarPage() {
   const trueScale = useSolar((s) => s.trueScale);
   const paths = useSolar((s) => s.paths);
   const tour = useSolar((s) => s.tour);
+  const crafts = useSolar((s) => s.crafts);
   const cleanView = useExperienceState((s) => s.cleanView);
   const set = solarStore.getState();
 
@@ -52,8 +55,10 @@ export default function SolarPage() {
       else p.delete('scale');
       if (!paths) p.set('paths', '0');
       else p.delete('paths');
+      if (!crafts) p.set('craft', '0');
+      else p.delete('craft');
     });
-  }, [focus, view, trueScale, paths]);
+  }, [focus, view, trueScale, paths, crafts]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -62,7 +67,8 @@ export default function SolarPage() {
       if (e.metaKey || e.ctrlKey) return;
       const s = solarStore.getState();
       const order = PLANETS.map((p) => p.id);
-      const idx = order.indexOf(s.focus === 'sun' ? '' : (bodyInfo(s.focus).kind === 'moon' ? bodyInfo(s.focus).parent! : s.focus));
+      const cur = anyBodyInfo(s.focus, BODY_BY_ID);
+      const idx = order.indexOf(!cur || cur.kind === 'star' || cur.kind === 'craft' ? '' : cur.kind === 'moon' ? cur.parent! : s.focus);
       switch (e.key) {
         case 'Escape':
           s.setTour(false);
@@ -103,10 +109,11 @@ export default function SolarPage() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  const info = bodyInfo(focus);
-  const moons = moonsOf(info.kind === 'moon' ? info.parent! : focus);
+  const info: BodyInfo = anyBodyInfo(focus, BODY_BY_ID) ?? bodyInfo('sun');
+  const moons = info.kind === 'craft' ? [] : moonsOf(info.kind === 'moon' ? info.parent! : focus);
   const headline = view === 'compare' ? 'Side by side.' : view === 'system' ? 'Everything in motion.' : view === 'inner' ? 'Our stellar neighborhood.' : view === 'moons' ? `${bodyInfo(info.kind === 'moon' ? info.parent! : focus).name} & its moons.` : `${info.name}.`;
-  const kicker = view === 'compare' ? 'True relative sizes' : view === 'system' ? 'Beyond our world' : view === 'inner' ? 'The rocky worlds' : info.kind === 'moon' ? `Moon of ${bodyInfo(info.parent!).name}` : info.kind;
+  const craft = CRAFT_BY_ID.get(focus);
+  const kicker = view === 'compare' ? 'True relative sizes' : view === 'system' ? 'Beyond our world' : view === 'inner' ? 'The rocky worlds' : craft ? (craft.kind === 'probe' ? `Spacecraft · ${craft.agency}` : craft.kind) : info.kind === 'moon' ? `Moon of ${bodyInfo(info.parent!).name}` : info.kind;
 
   if (cleanView) return null;
   return (
@@ -133,6 +140,9 @@ export default function SolarPage() {
           </button>
           <button className="chip" aria-pressed={tour} onClick={() => set.setTour(!tour)} title="T">
             {tour ? 'Stop tour' : 'Grand tour'}
+          </button>
+          <button className="chip" aria-pressed={crafts} onClick={() => set.setCrafts(!crafts)} data-testid="crafts-toggle">
+            Spacecraft
           </button>
           {moons.length > 0 && (
             <select className="chip bg-ink-2" aria-label="Explore a moon" value={info.kind === 'moon' ? focus : ''} onChange={(e) => e.target.value && set.setFocus(e.target.value, 'planet')}>
@@ -188,8 +198,33 @@ function fmt(n: number, digits = 0): string {
 }
 
 function InfoPanel({ id }: { id: string }) {
-  const info = bodyInfo(id);
+  const craft = CRAFT_BY_ID.get(id);
+  const info: BodyInfo = anyBodyInfo(id, BODY_BY_ID) ?? bodyInfo('sun');
   const t = useSolar((s) => s.telemetry);
+  if (craft) {
+    const years = craft.launch ? (Date.now() - Date.parse(craft.launch)) / (365.25 * 86_400_000) : null;
+    const lightMin = t.earthDistanceKm / 299_792.458 / 60;
+    return (
+      <aside className="panel fixed right-4 top-20 w-72 max-w-[calc(100vw-2rem)] p-4 text-sm hidden md:block" data-ui aria-label={`${craft.name} facts`} data-testid="info-panel">
+        <p className="kicker">{craft.kind === 'probe' ? `Spacecraft · ${craft.agency}` : craft.kind}</p>
+        <h2 className="text-2xl font-semibold mt-1">{craft.name}</h2>
+        <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+          {craft.launch && <Stat k="Launched" v={craft.launch} />}
+          {years !== null && <Stat k="In flight" v={`${fmt(years, 1)} yr`} />}
+          <Stat k="Speed" v={t.speedKmS > 0 ? `${fmt(t.speedKmS, 2)} km/s` : '—'} />
+          <Stat k="From Sun" v={t.sunDistanceKm > 0 ? `${fmt(t.sunDistanceKm / AU_KM, 3)} AU` : '—'} />
+          <Stat k="From Earth" v={t.earthDistanceKm > 0 ? `${fmt(t.earthDistanceKm / AU_KM, 3)} AU` : '—'} />
+          <Stat k="Signal time" v={lightMin > 0 ? (lightMin > 60 ? `${fmt(lightMin / 60, 1)} h` : `${fmt(lightMin, 1)} min`) : '—'} />
+        </dl>
+        <ul className="mt-3 space-y-1.5 text-fog-2 text-xs leading-relaxed">
+          {craft.facts.map((f) => (
+            <li key={f}>{f}</li>
+          ))}
+        </ul>
+        <p className="mt-3 text-[10px] text-fog-2">Path from NASA/JPL Horizons samples, drawn up to the simulation date.</p>
+      </aside>
+    );
+  }
   const lightSeconds = t.sunDistanceKm / 299_792.458;
   return (
     <aside className="panel fixed right-4 top-20 w-72 max-w-[calc(100vw-2rem)] p-4 text-sm hidden md:block" data-ui aria-label={`${info.name} facts`} data-testid="info-panel">

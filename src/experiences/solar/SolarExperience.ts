@@ -16,6 +16,9 @@ import { createAtmosphereShells } from '@/engine/materials/AtmosphereShell';
 import { createRingGeometry, createRingMaterial } from '@/engine/materials/RingMaterial';
 import type { ClockState } from '@/astro/time';
 import { BODIES, BODY_BY_ID, bodyInfo, moonsOf, PLANETS, type BodyInfo } from '@/astro/bodies';
+import { CRAFT, CRAFT_BODIES, CRAFT_BY_ID, isCraft } from '@/astro/spacecraft';
+import { Trajectory } from '@/astro/trajectory';
+import { assetUrl } from '@/engine/Assets';
 import { galileanPositionKm, isGalilean, keplerMoonElements, keplerMoonPositionKm, loadKeplerMoons, moonPhaseDeg, moonPositionKm, planetPositionKm, planetStateKm, type Km3 } from '@/astro/ephemeris';
 import { bodyOrientation, hasIauOrientation } from '@/astro/rotation';
 import { elementsFromState, samplePath } from '@/astro/kepler';
@@ -25,6 +28,7 @@ import { settingsStore } from '@/store/settings';
 import { clockStore } from '@/store/clock';
 
 const SUN_GM = 1.32712440018e11; // km^3/s^2
+const ALL_BODIES: BodyInfo[] = [...BODIES, ...CRAFT_BODIES];
 const TOUR_ORDER = ['mercury', 'venus', 'earth', 'moon', 'mars', 'jupiter', 'io', 'saturn', 'titan', 'uranus', 'neptune', 'pluto'];
 
 interface Node {
@@ -83,6 +87,9 @@ export class SolarExperience extends Experience {
   private cloudShift = 0;
   private sunUniformTime = 0;
   private lastFrameMs = 0;
+  private trajectories = new Map<string, Trajectory>();
+  private craftPathDay = new Map<string, number>();
+  private tail: THREE.Mesh | null = null;
   /** unit spheres shared by every body, swapped per frame by projected size */
   private lod: { high: THREE.SphereGeometry; mid: THREE.SphereGeometry; low: THREE.SphereGeometry } | null = null;
   private lodAtmo: THREE.SphereGeometry | null = null;
@@ -104,18 +111,45 @@ export class SolarExperience extends Experience {
       low: new THREE.SphereGeometry(1, 20, 12),
     };
     this.lodAtmo = new THREE.SphereGeometry(1, 48, 32);
-    // bodies
-    for (const info of BODIES) this.nodes.set(info.id, this.createNode(info, tier.sphereSegments));
+    // bodies, plus spacecraft and small bodies (positions arrive with their trajectories)
+    for (const info of ALL_BODIES) this.nodes.set(info.id, this.createNode(info, tier.sphereSegments));
+    for (const c of CRAFT_BODIES) this.nodes.get(c.id)!.visible = false;
 
     // markers for pixel-sized bodies
-    this.markerPositions = new Float32Array(BODIES.length * 3);
-    this.markerColors = new Float32Array(BODIES.length * 3);
+    this.markerPositions = new Float32Array(ALL_BODIES.length * 3);
+    this.markerColors = new Float32Array(ALL_BODIES.length * 3);
     const mg = new THREE.BufferGeometry();
     mg.setAttribute('position', new THREE.BufferAttribute(this.markerPositions, 3));
     mg.setAttribute('color', new THREE.BufferAttribute(this.markerColors, 3));
     this.markers = new THREE.Points(mg, new THREE.PointsMaterial({ size: 5, sizeAttenuation: false, vertexColors: true, map: dotTexture(), transparent: true, depthWrite: false, alphaTest: 0.2 }));
     this.markers.frustumCulled = false;
     this.scene.add(this.markers);
+    // Halley's tail: an additive gradient strip pointing away from the Sun
+    {
+      const c = document.createElement('canvas');
+      c.width = 256;
+      c.height = 32;
+      const g = c.getContext('2d')!;
+      const grad = g.createLinearGradient(0, 0, 256, 0);
+      grad.addColorStop(0, 'rgba(210,235,255,0.9)');
+      grad.addColorStop(0.35, 'rgba(160,200,255,0.35)');
+      grad.addColorStop(1, 'rgba(120,160,255,0)');
+      g.fillStyle = grad;
+      g.fillRect(0, 0, 256, 32);
+      const v = g.createLinearGradient(0, 0, 0, 32);
+      v.addColorStop(0, 'rgba(0,0,0,1)');
+      v.addColorStop(0.5, 'rgba(0,0,0,0)');
+      v.addColorStop(1, 'rgba(0,0,0,1)');
+      g.globalCompositeOperation = 'destination-out';
+      g.fillStyle = v;
+      g.fillRect(0, 0, 256, 32);
+      const tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      this.tail = new THREE.Mesh(new THREE.PlaneGeometry(1, 1).translate(0.5, 0, 0), new THREE.MeshBasicMaterial({ map: tex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+      this.tail.visible = false;
+      this.tail.renderOrder = 6;
+      this.scene.add(this.tail);
+    }
 
     // camera + input
     this.rig = new CameraRig(this.camera, ctx.stage, { distance: 420_000, phi: 1.05, theta: 0.7 });
@@ -163,7 +197,16 @@ export class SolarExperience extends Experience {
     this.ready = true;
     // async assets: never block the first frame
     void this.loadAssets(ctx, tier.textureTier);
-    await Promise.all([this.stars.load(ctx.signal).catch(() => undefined), loadKeplerMoons(ctx.signal).catch((e) => console.warn('moons', e))]);
+    await Promise.all([
+      this.stars.load(ctx.signal).catch(() => undefined),
+      loadKeplerMoons(ctx.signal).catch((e) => console.warn('moons', e)),
+      fetch(assetUrl('data/solar/spacecraft.json'), { signal: ctx.signal })
+        .then((r) => r.json() as Promise<{ craft: Record<string, { rows: number[][] }> }>)
+        .then((d) => {
+          for (const [id, c] of Object.entries(d.craft)) this.trajectories.set(id, new Trajectory(c.rows));
+        })
+        .catch((e) => console.warn('spacecraft', e)),
+    ]);
   }
 
   private async loadAssets(ctx: ExperienceContext, tier: '1k' | '2k' | '4k'): Promise<void> {
@@ -280,7 +323,7 @@ export class SolarExperience extends Experience {
         pm.uRingOpacity.value = r.opacity;
       }
     }
-    const path = info.kind === 'star' ? null : new OrbitLine(info.color, info.kind === 'moon' ? 0.35 : 0.42, info.kind === 'moon' ? 1 : 1.3);
+    const path = info.kind === 'star' ? null : new OrbitLine(info.color, info.kind === 'moon' ? 0.35 : info.kind === 'craft' ? 0.55 : 0.42, info.kind === 'moon' || info.kind === 'craft' ? 1 : 1.3);
     if (path) this.pathsGroup.add(path.line);
     const trail = info.kind === 'planet' || info.kind === 'dwarf' ? new OrbitLine(info.color, 0.7, 1.6) : null;
     if (trail) this.scene.add(trail.line);
@@ -324,6 +367,7 @@ export class SolarExperience extends Experience {
   }
 
   private fitDistance(focus: Node, view: SolarView): number {
+    if (focus.info.kind === 'craft' && (view === 'planet' || view === 'moons')) return Math.max(1500, Math.hypot(...focus.display) * 0.035);
     if (view === 'planet') return Math.max(this.fitRadius(focus.displayRadius * (focus.rings.length ? 2.4 : 1.0), 1.35), 0.5);
     if (view === 'moons') {
       const moons = moonsOf(focus.info.id).map((m) => this.nodes.get(m.id)!);
@@ -359,7 +403,7 @@ export class SolarExperience extends Experience {
     const distance = this.fitDistance(anchor, view);
     const phi = view === 'planet' ? 1.35 : view === 'moons' ? 1.15 : view === 'compare' ? 1.5 : 1.02;
     let theta = view === 'compare' ? Math.PI / 2 : this.rig.pose.theta;
-    if (view === 'planet' && anchorId !== 'sun') {
+    if (view === 'planet' && anchorId !== 'sun' && anchor.info.kind !== 'craft') {
       // stand between the Sun and the world, a little to one side so the terminator shows
       const sunDir = new THREE.Vector3().subVectors(this.nodes.get('sun')!.scene, anchor.scene).normalize();
       theta = Math.atan2(sunDir.x, sunDir.z) + 0.55;
@@ -396,6 +440,30 @@ export class SolarExperience extends Experience {
         node.displayRadius = blendLog(info.illustratedRadiusUnits, info.radiusKm * UNITS_PER_KM, mix);
         node.visible = true;
       }
+    }
+    const earthNode = this.nodes.get('earth')!;
+    for (const info of CRAFT_BODIES) {
+      const node = this.nodes.get(info.id)!;
+      const c = CRAFT_BY_ID.get(info.id)!;
+      let km: Km3 | null = null;
+      if (c.data === 'l2') {
+        const d = Math.hypot(...earthNode.km);
+        const k = 1 + (0.01 * AU_KM) / d; // 0.01 AU anti-sunward of Earth
+        km = [earthNode.km[0] * k, earthNode.km[1] * k, earthNode.km[2] * k];
+      } else {
+        const tr = this.trajectories.get(c.data);
+        const st = tr?.at(ms);
+        if (st) km = st.r;
+      }
+      if (!km || !solarStore.getState().crafts) {
+        node.visible = false;
+        continue;
+      }
+      node.km = km;
+      const d = Math.hypot(...km);
+      node.display = blendPosition(km, illustratedDistanceUnits(d), mix);
+      node.displayRadius = 0.02;
+      node.visible = true;
     }
     for (const info of BODIES) {
       if (info.kind !== 'moon') continue;
@@ -502,7 +570,7 @@ export class SolarExperience extends Experience {
 
   private updatePaths(ms: number, mix: number, force: boolean): void {
     const rate = Math.abs(clockStore.getState().rate);
-    const due = force || Math.abs(mix - this.lastPathMix) > 0.002 || Math.abs(ms - this.lastPathMs) > Math.max(86_400_000 * 3, rate * 2000);
+    const due = force || Math.abs(mix - this.lastPathMix) > 0.002 || Math.abs(ms - this.lastPathMs) > Math.min(86_400_000 * 3, Math.max(86_400_000 * 0.25, rate * 2000));
     if (!due) return;
     this.lastPathMs = ms;
     this.lastPathMix = mix;
@@ -521,6 +589,17 @@ export class SolarExperience extends Experience {
           }
         } catch {
           pts = [];
+        }
+      } else if (info.kind === 'craft') {
+        const c = CRAFT_BY_ID.get(info.id)!;
+        const tr = c.data === 'l2' ? null : this.trajectories.get(c.data);
+        if (!tr || !node.visible) {
+          node.path.line.visible = false;
+          continue;
+        }
+        for (const p of tr.slice(ms, 3000)) {
+          const d = blendPosition(p, illustratedDistanceUnits(Math.hypot(...p)), mix);
+          pts.push(d[0], d[1], d[2]);
         }
       } else if (info.kind === 'moon') {
         const parent = this.nodes.get(info.parent!)!;
@@ -607,7 +686,7 @@ export class SolarExperience extends Experience {
       if (node.path) {
         const wide = state.view === 'system' || state.view === 'inner';
         if (state.view === 'compare') node.path.line.visible = false;
-        node.path.line.visible = node.path.line.visible && visible && (isMoon ? !wide : wide);
+        node.path.line.visible = node.path.line.visible && visible && (isMoon ? !wide : wide || info.kind === 'craft');
       }
       if (!visible) continue;
       // marker for tiny bodies
@@ -617,7 +696,7 @@ export class SolarExperience extends Experience {
         this.markerColors.set([c.r, c.g, c.b], mi * 3);
         mi++;
       }
-      entries.push({ id: info.id, text: info.name, color: info.color, priority: info.kind === 'star' ? 5 : info.kind === 'planet' ? 4 : info.kind === 'dwarf' ? 2 : 1, position: node.scene, radius: node.displayRadius, visible: dist > node.displayRadius * 1.02 && !(info.id === state.focus && px > 40) });
+      entries.push({ id: info.id, text: info.name, color: info.color, priority: info.kind === 'star' ? 5 : info.kind === 'planet' ? 4 : info.kind === 'dwarf' || info.kind === 'craft' ? 2 : 1, position: node.scene, radius: node.displayRadius, visible: dist > node.displayRadius * 1.02 && !(info.id === state.focus && px > 40) });
     }
     this.markers.geometry.setDrawRange(0, mi);
     (this.markers.geometry.attributes.position as THREE.BufferAttribute).needsUpdate = true;
@@ -677,6 +756,27 @@ export class SolarExperience extends Experience {
     this.updateTrails(ms, this.scaleMix);
     this.rig.update(dt);
     this.updateMarkersAndLabels();
+    // comet tail
+    if (this.tail) {
+      const h = this.nodes.get('halley')!;
+      const rAu = Math.hypot(...h.km) / AU_KM;
+      if (h.visible && rAu < 3) {
+        const camDist = this.camera.position.distanceTo(h.scene);
+        // long in the wide view, but never wider than the frame when the comet itself is the focus
+        const len = Math.min(Math.hypot(...h.display) * 0.22 * Math.min(1, 1 / (rAu * rAu)), camDist * 0.8);
+        // billboard: +X away from the Sun, the plane's normal toward the camera
+        const X = new THREE.Vector3().subVectors(h.scene, sun.scene).normalize();
+        const toCam = new THREE.Vector3().subVectors(this.camera.position, h.scene).normalize();
+        const Z = toCam.clone().addScaledVector(X, -toCam.dot(X)).normalize();
+        if (Z.lengthSq() < 1e-6) Z.set(0, 1, 0);
+        const Y = new THREE.Vector3().crossVectors(Z, X).normalize();
+        this.tail.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(X, Y, Z));
+        this.tail.position.copy(h.scene);
+        this.tail.scale.set(len, len * 0.12, 1);
+        (this.tail.material as THREE.MeshBasicMaterial).opacity = 0.7;
+        this.tail.visible = true;
+      } else this.tail.visible = false;
+    }
     // lens flare from the Sun, hidden behind the focused world
     {
       const focusNode = this.nodes.get(state.focus)!;
@@ -703,7 +803,15 @@ export class SolarExperience extends Experience {
       const parent = f.info.parent ? this.nodes.get(f.info.parent)! : null;
       const parentDistanceKm = parent ? Math.hypot(f.km[0] - parent.km[0], f.km[1] - parent.km[1], f.km[2] - parent.km[2]) : 0;
       const camKm = (this.camera.position.distanceTo(f.scene) - f.displayRadius) / UNITS_PER_KM;
-      solarStore.setState({ telemetry: { parentDistanceKm, sunDistanceKm: Math.hypot(...f.km), cameraAltitudeKm: camKm, moonCount: moonsOf(state.focus).length, moonPhaseDeg: moonPhaseDeg(ms) } });
+      let speedKmS = 0;
+      if (f.info.kind === 'craft') {
+        const c = CRAFT_BY_ID.get(f.info.id)!;
+        const st = c.data === 'l2' ? null : this.trajectories.get(c.data)?.at(ms);
+        speedKmS = st ? Math.hypot(...st.v) : 0;
+      }
+      const e = this.nodes.get('earth')!;
+      const earthDistanceKm = Math.hypot(f.km[0] - e.km[0], f.km[1] - e.km[1], f.km[2] - e.km[2]);
+      solarStore.setState({ telemetry: { parentDistanceKm, sunDistanceKm: Math.hypot(...f.km), cameraAltitudeKm: camKm, moonCount: moonsOf(state.focus).length, moonPhaseDeg: moonPhaseDeg(ms), speedKmS, earthDistanceKm } });
       this.ctx.renderer.canvas.dataset.scale = this.scaleMix.toFixed(2);
     }
     this.lastFrameMs = ms;
@@ -719,7 +827,7 @@ export class SolarExperience extends Experience {
 
   override exportPose(): Handoff | null {
     const state = solarStore.getState();
-    if (state.focus === 'sun' || this.originId !== state.focus || !this.rig) return null;
+    if (state.focus === 'sun' || isCraft(state.focus) || this.originId !== state.focus || !this.rig) return null;
     const node = this.nodes.get(state.focus);
     if (!node) return null;
     return handoffFromPose('solar', state.focus, this.rig.pose, node.info.radiusKm, node.displayRadius, this.lastFrameMs || clockStore.getState().epochMs);
@@ -729,6 +837,8 @@ export class SolarExperience extends Experience {
     const s = solarStore.getState();
     const cmds: Command[] = [];
     for (const b of BODIES) cmds.push({ id: `focus:${b.id}`, label: `Go to ${b.name}`, group: b.kind === 'moon' ? 'Moons' : 'Worlds', keywords: [b.kind, b.parent ?? ''], run: () => s.setFocus(b.id, 'planet') });
+    for (const c of CRAFT) cmds.push({ id: `focus:${c.id}`, label: `Go to ${c.name}`, group: c.kind === 'probe' ? 'Spacecraft' : 'Comets & asteroids', keywords: [c.kind, c.agency], run: () => s.setFocus(c.id, 'planet') });
+    cmds.push({ id: 'crafts', label: 'Toggle spacecraft, comets and asteroids', group: 'Display', run: () => s.setCrafts(!solarStore.getState().crafts) });
     cmds.push({ id: 'view:system', label: 'View: Solar System', group: 'Views', run: () => s.setView('system') });
     cmds.push({ id: 'view:inner', label: 'View: Inner worlds', group: 'Views', run: () => s.setView('inner') });
     cmds.push({ id: 'view:moons', label: 'View: Moons of the selected world', group: 'Views', run: () => s.setView('moons') });
@@ -748,6 +858,8 @@ export class SolarExperience extends Experience {
     this.stars.dispose();
     this.milkyWay?.dispose();
     this.flare.dispose();
+    this.tail?.geometry.dispose();
+    (this.tail?.material as THREE.Material | undefined)?.dispose();
     this.lod?.high.dispose();
     this.lod?.mid.dispose();
     this.lod?.low.dispose();

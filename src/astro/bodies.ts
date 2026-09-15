@@ -4,7 +4,7 @@
  * physical parameters (https://ssd.jpl.nasa.gov/sats/phys_par/).
  * Radii in km, masses in kg, periods in days, day = sidereal rotation in hours.
  */
-export type BodyKind = 'star' | 'planet' | 'dwarf' | 'moon';
+export type BodyKind = 'star' | 'planet' | 'dwarf' | 'moon' | 'craft';
 
 export interface Ring {
   innerKm: number;

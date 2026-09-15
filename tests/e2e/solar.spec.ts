@@ -88,6 +88,28 @@ test('Moments jump to the August 2026 total solar eclipse and focus Earth', asyn
   await expect(canvas).toHaveAttribute('data-focus', 'earth');
 });
 
+test('spacecraft: Voyager 1 is 180 AU out with a clipped path, and the toggle hides crafts', async ({ page }) => {
+  await page.goto('./solar?body=voyager1&view=planet&t=2026-09-14T12:00:00Z&rate=0');
+  const canvas = await ready(page);
+  await expect(canvas).toHaveAttribute('data-focus', 'voyager1');
+  await expect(page.locator('[data-testid="info-panel"] h2')).toHaveText('Voyager 1');
+  await expect(page.locator('[data-testid="info-panel"]')).toContainText('km/s', { timeout: 15_000 });
+  await expect(page.locator('[data-testid="info-panel"]')).toContainText(/1[6-8]\d\.\d{3} AU/);
+  await page.locator('[data-testid="crafts-toggle"]').click();
+  await expect.poll(() => page.url()).toContain('craft=0');
+});
+
+test('command palette reaches Halley and the Halley path exists before 1986', async ({ page }) => {
+  await page.goto('./solar?t=1985-11-01T00:00:00Z&rate=0');
+  const canvas = await ready(page);
+  await page.keyboard.press(process.platform === 'darwin' ? 'Meta+k' : 'Control+k');
+  const input = page.locator('.palette-input');
+  await input.fill('Go to Halley');
+  await page.keyboard.press('Enter');
+  await expect(canvas).toHaveAttribute('data-focus', 'halley');
+  await expect(page.locator('[data-testid="info-panel"]')).toContainText('Last perihelion 9 February 1986');
+});
+
 test('command palette opens with Cmd/Ctrl+K and navigates', async ({ page }) => {
   await page.goto('./solar?t=2026-09-14T12:00:00Z&rate=0');
   const canvas = await ready(page);

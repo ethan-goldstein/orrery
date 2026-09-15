@@ -14,6 +14,9 @@ export interface SolarTelemetry {
   moonCount: number;
   /** Earth-Moon phase in degrees when relevant */
   moonPhaseDeg: number;
+  /** heliocentric speed of the focus, km/s (crafts) */
+  speedKmS: number;
+  earthDistanceKm: number;
 }
 
 export interface SolarState {
@@ -23,6 +26,8 @@ export interface SolarState {
   paths: boolean;
   trails: boolean;
   tour: boolean;
+  /** show spacecraft, comets and asteroids */
+  crafts: boolean;
   /** engine-owned animated 0..1 */
   scaleMix: number;
   telemetry: SolarTelemetry;
@@ -32,6 +37,7 @@ export interface SolarState {
   setPaths: (v: boolean) => void;
   setTrails: (v: boolean) => void;
   setTour: (v: boolean) => void;
+  setCrafts: (v: boolean) => void;
 }
 
 export const solarStore = createStore<SolarState>((set) => ({
@@ -42,13 +48,15 @@ export const solarStore = createStore<SolarState>((set) => ({
   trails: true,
   tour: false,
   scaleMix: 0,
-  telemetry: { parentDistanceKm: 0, sunDistanceKm: 0, cameraAltitudeKm: 0, moonCount: 0, moonPhaseDeg: 0 },
+  crafts: true,
+  telemetry: { parentDistanceKm: 0, sunDistanceKm: 0, cameraAltitudeKm: 0, moonCount: 0, moonPhaseDeg: 0, speedKmS: 0, earthDistanceKm: 0 },
   setView: (view) => set({ view }),
   setFocus: (focus, view) => set((s) => ({ focus, view: view ?? (s.view === 'system' || s.view === 'inner' ? 'planet' : s.view), tour: false })),
   setTrueScale: (trueScale) => set({ trueScale }),
   setPaths: (paths) => set({ paths }),
   setTrails: (trails) => set({ trails }),
   setTour: (tour) => set({ tour }),
+  setCrafts: (crafts) => set({ crafts }),
 }));
 
 export const useSolar = <T>(selector: (s: SolarState) => T): T => useStore(solarStore, selector);

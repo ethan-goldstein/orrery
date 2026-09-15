@@ -29,6 +29,7 @@ describe('asset licensing', () => {
   it('every dataset folder documents its source and license in a README', () => {
     const dataDir = join(root, 'public/data');
     for (const d of readdirSync(dataDir)) {
+      if (!statSync(join(dataDir, d)).isDirectory()) continue; // status.json lives at the top level
       const readme = join(dataDir, d, 'README.md');
       expect(existsSync(readme), `${d}/README.md`).toBe(true);
       const text = readFileSync(readme, 'utf8').toLowerCase();

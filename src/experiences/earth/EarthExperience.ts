@@ -7,6 +7,7 @@ import { assetUrl, loadTexture } from '@/engine/Assets';
 import { createHistoryEarthMaterial } from '@/engine/materials/HistoryEarthMaterial';
 import { createCloudMaterial } from '@/engine/materials/EarthMaterial';
 import { createAtmosphereShells } from '@/engine/materials/AtmosphereShell';
+import { handoffFromPose, poseFromHandoff, type Handoff } from '@/engine/Journey';
 import type { ClockState } from '@/astro/time';
 import { bodyOrientation } from '@/astro/rotation';
 import { planetPositionKm } from '@/astro/ephemeris';
@@ -44,6 +45,7 @@ export class EarthExperience extends Experience {
   private unsub: (() => void)[] = [];
   private lastWall = 0;
   private time = 0;
+  private lastEpochMs = Date.now();
 
   override async mount(ctx: ExperienceContext): Promise<void> {
     await super.mount(ctx);
@@ -63,6 +65,15 @@ export class EarthExperience extends Experience {
 
     this.rig = new CameraRig(this.camera, ctx.stage, { distance: EARTH_RADIUS * 3.1, phi: 1.25, theta: 0.6 });
     this.rig.limits = { minDistance: EARTH_RADIUS * 1.15, maxDistance: EARTH_RADIUS * 12, minPolar: 0.05, maxPolar: Math.PI - 0.05 };
+    if (ctx.handoff?.bodyId === 'earth') {
+      // continue from wherever the last world left the camera, then glide to the default framing
+      this.rig.limits.maxDistance = EARTH_RADIUS * 40;
+      this.rig.importPose({ ...poseFromHandoff(ctx.handoff, 6371, EARTH_RADIUS), target: new THREE.Vector3() });
+      this.acceptedHandoff = true;
+      void this.rig.flyTo({ distance: EARTH_RADIUS * 3.1, phi: 1.25 }, 1.8).then(() => {
+        this.rig.limits.maxDistance = EARTH_RADIUS * 12;
+      });
+    }
     this.rig.element.addEventListener('pointerdown', () => earthStore.getState().set({ playing: false }));
 
     // scroll = time travel (the reference's signature interaction), wheel over UI still scrolls
@@ -100,6 +111,7 @@ export class EarthExperience extends Experience {
     this.material = createHistoryEarthMaterial({ day, night, clouds, specular });
     (this.globe.material as THREE.Material).dispose();
     this.globe.material = this.material;
+    this.markPainted();
     if (clouds) {
       this.clouds = new THREE.Mesh(new THREE.SphereGeometry(EARTH_RADIUS * 1.004, 96, 64), createCloudMaterial(clouds));
       this.clouds.renderOrder = 1;
@@ -202,6 +214,7 @@ export class EarthExperience extends Experience {
     const br = this.bracket(s.ma);
     // orientation: real IAU pole + spin today; art-directed slow spin in the past
     const ms = clock.epochMs;
+    this.lastEpochMs = ms;
     const sunHour = s.sunHour ?? (s.ma < 0.5 ? null : 10.2);
     const o = bodyOrientation('earth', ms);
     if (o) this.globe.quaternion.copy(o.quaternion);
@@ -261,6 +274,11 @@ export class EarthExperience extends Experience {
     c.dataset.era = era.id;
     c.dataset.frames = String(this.frames.size);
     c.dataset.lighting = sunHour === null ? 'real' : 'illustrative';
+  }
+
+  override exportPose(): Handoff | null {
+    if (!this.ready) return null;
+    return handoffFromPose('earth', 'earth', this.rig.pose, 6371, EARTH_RADIUS, this.lastEpochMs);
   }
 
   flyToEra(lat: number, lon: number): void {

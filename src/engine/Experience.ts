@@ -1,13 +1,15 @@
 import * as THREE from 'three';
 import type { Renderer } from './Renderer';
-import type { Pose } from './CameraRig';
 import type { ClockState } from '@/astro/time';
+import type { Handoff } from './Journey';
 
 export interface ExperienceContext {
   renderer: Renderer;
   /** DOM element that receives pointer input and hosts labels */
   stage: HTMLElement;
   signal: AbortSignal;
+  /** camera pose left by the previous experience, if any */
+  handoff: Handoff | null;
 }
 
 export interface Command {
@@ -27,6 +29,19 @@ export abstract class Experience {
   readonly camera = new THREE.PerspectiveCamera(45, 1, 1e-4, 1e7);
   abstract readonly id: string;
   protected ctx!: ExperienceContext;
+  /** true once importPose() took the previous experience's camera */
+  acceptedHandoff = false;
+  /** resolves once the primary surface is textured; the engine waits (briefly) before revealing */
+  readonly firstPaint: Promise<void>;
+  private resolvePaint!: () => void;
+
+  constructor() {
+    this.firstPaint = new Promise((r) => (this.resolvePaint = r));
+  }
+
+  protected markPainted(): void {
+    this.resolvePaint();
+  }
 
   async mount(ctx: ExperienceContext): Promise<void> {
     this.ctx = ctx;
@@ -39,11 +54,15 @@ export abstract class Experience {
     this.camera.updateProjectionMatrix();
   }
 
-  exportPose(): Pose | null {
+  /** Describe where the camera is relative to a body, for the next experience. */
+  exportPose(): Handoff | null {
     return null;
   }
 
-  importPose(_pose: Pose): void {}
+  /** Take over the previous camera pose. Return true if it was used. */
+  importPose(_h: Handoff): boolean {
+    return false;
+  }
 
   commands(): Command[] {
     return [];

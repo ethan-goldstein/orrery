@@ -7,6 +7,7 @@ import { Labels, type LabelEntry } from '@/engine/Labels';
 import { Picker } from '@/engine/Picker';
 import { OrbitLine } from '@/engine/OrbitLine';
 import { LensFlare } from '@/engine/LensFlare';
+import { handoffFromPose, poseFromHandoff, type Handoff } from '@/engine/Journey';
 import { loadTexture } from '@/engine/Assets';
 import { createPlanetMaterial } from '@/engine/materials/PlanetMaterial';
 import { createSunMaterial, createCoronaSprite } from '@/engine/materials/SunMaterial';
@@ -14,7 +15,7 @@ import { createEarthMaterial, createCloudMaterial } from '@/engine/materials/Ear
 import { createAtmosphereShells } from '@/engine/materials/AtmosphereShell';
 import { createRingGeometry, createRingMaterial } from '@/engine/materials/RingMaterial';
 import type { ClockState } from '@/astro/time';
-import { BODIES, bodyInfo, moonsOf, PLANETS, type BodyInfo } from '@/astro/bodies';
+import { BODIES, BODY_BY_ID, bodyInfo, moonsOf, PLANETS, type BodyInfo } from '@/astro/bodies';
 import { galileanPositionKm, isGalilean, keplerMoonElements, keplerMoonPositionKm, loadKeplerMoons, moonPhaseDeg, moonPositionKm, planetPositionKm, planetStateKm, type Km3 } from '@/astro/ephemeris';
 import { bodyOrientation, hasIauOrientation } from '@/astro/rotation';
 import { elementsFromState, samplePath } from '@/astro/kepler';
@@ -126,6 +127,9 @@ export class SolarExperience extends Experience {
       if (id) solarStore.getState().setFocus(id);
     };
 
+    // a camera handed over from another world: arrive at that world in planet view
+    const handoff = ctx.handoff && BODY_BY_ID.has(ctx.handoff.bodyId) ? ctx.handoff : null;
+    if (handoff) solarStore.setState({ focus: handoff.bodyId, view: 'planet', tour: false });
     // store subscriptions
     const s = solarStore.getState();
     this.originId = s.focus;
@@ -148,6 +152,13 @@ export class SolarExperience extends Experience {
     this.labels.enabled = settingsStore.getState().labels;
     this.pathsGroup.visible = s.paths;
     this.applyView(s.focus, s.view, true);
+    if (handoff) {
+      const node = this.nodes.get(handoff.bodyId)!;
+      const pose = poseFromHandoff(handoff, node.info.radiusKm, node.displayRadius);
+      this.rig.importPose({ ...pose, target: new THREE.Vector3() });
+      this.acceptedHandoff = true;
+      void this.rig.flyTo({ distance: this.fitDistance(node, 'planet'), phi: 1.35 }, 2.2);
+    }
 
     this.ready = true;
     // async assets: never block the first frame
@@ -183,6 +194,7 @@ export class SolarExperience extends Experience {
             node.mesh.material = mat;
             node.material = mat;
             old.dispose();
+            if (solarStore.getState().focus === 'earth') this.markPainted();
             if (clouds) {
               const cm = new THREE.Mesh(this.lod!.mid, createCloudMaterial(clouds));
               cm.scale.setScalar(1.004);
@@ -206,6 +218,7 @@ export class SolarExperience extends Experience {
               m.map = tex;
               m.color.set(0xffffff);
               m.needsUpdate = true;
+              if (solarStore.getState().focus === info.id) this.markPainted();
             }
           }),
         );
@@ -226,6 +239,7 @@ export class SolarExperience extends Experience {
       }
     }
     await Promise.allSettled(tasks);
+    this.markPainted();
   }
 
   private createNode(info: BodyInfo, segments: number): Node {
@@ -701,6 +715,14 @@ export class SolarExperience extends Experience {
       node.path?.setResolution(width, height);
       node.trail?.setResolution(width, height);
     }
+  }
+
+  override exportPose(): Handoff | null {
+    const state = solarStore.getState();
+    if (state.focus === 'sun' || this.originId !== state.focus || !this.rig) return null;
+    const node = this.nodes.get(state.focus);
+    if (!node) return null;
+    return handoffFromPose('solar', state.focus, this.rig.pose, node.info.radiusKm, node.displayRadius, this.lastFrameMs || clockStore.getState().epochMs);
   }
 
   override commands(): Command[] {

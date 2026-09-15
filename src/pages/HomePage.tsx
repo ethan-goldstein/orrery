@@ -2,6 +2,7 @@ import { Link } from 'wouter';
 import { ROUTES } from '@/app/route-list';
 import { useExperience } from '@/app/EngineContext';
 import { SkyExperience } from '@/experiences/sky/SkyExperience';
+import { prefetchRoute } from '@/app/prefetch';
 
 const factory = () => new SkyExperience();
 
@@ -17,7 +18,7 @@ export default function HomePage() {
       <ul className="mt-8 grid grid-cols-2 gap-2 text-sm">
         {ROUTES.filter((r) => r.id !== 'home').map((r) => (
           <li key={r.id}>
-            <Link href={r.path} className="block rounded-lg bg-ink-2/70 px-4 py-3 hover:bg-ink-2">
+            <Link href={r.path} className="block rounded-lg bg-ink-2/70 px-4 py-3 hover:bg-ink-2" onPointerEnter={() => prefetchRoute(r.id)} onFocus={() => prefetchRoute(r.id)}>
               <span className="block">{r.nav}</span>
               <span className="block text-xs text-fog-2 mt-1">{r.description}</span>
             </Link>

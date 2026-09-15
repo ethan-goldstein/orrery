@@ -36,7 +36,7 @@ export function useExperience(id: string, factory: ExperienceFactory): void {
   const engine = useEngine();
   useEffect(() => {
     if (!engine) return;
-    experienceStore.getState().set({ active: id, load: 'loading', status: 'Preparing your view…', journey: true });
+    experienceStore.getState().set({ active: id, load: 'loading', status: 'Preparing your view…', journey: 'veil' });
     let cancelled = false;
     engine.mount(factory).then(() => {
       if (cancelled) return;

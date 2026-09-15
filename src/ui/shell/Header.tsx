@@ -4,6 +4,7 @@ import { useExperience } from '@/store/experience';
 import { useState } from 'react';
 import { SourcesDialog } from '@/ui/SourcesDialog';
 import { SettingsButton } from '@/ui/Settings';
+import { prefetchRoute } from '@/app/prefetch';
 
 export function Header() {
   const [location] = useLocation();
@@ -22,6 +23,8 @@ export function Header() {
             href={r.path}
             className={location === r.path ? 'text-fog' : 'text-fog-2 hover:text-fog'}
             aria-current={location === r.path ? 'page' : undefined}
+            onPointerEnter={() => prefetchRoute(r.id)}
+            onFocus={() => prefetchRoute(r.id)}
           >
             {r.nav}
           </Link>

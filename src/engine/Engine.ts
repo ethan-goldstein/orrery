@@ -7,6 +7,7 @@ import { clockStore } from '@/store/clock';
 import { advance } from '@/astro/time';
 import { experienceStore } from '@/store/experience';
 import { enableKtx2, ktx2Enabled } from './Assets';
+import { HANDOFF_MAX_AGE_MS } from './Journey';
 
 export type ExperienceFactory = () => Experience;
 
@@ -56,6 +57,10 @@ export class Engine {
     this.abort = abort;
     const exp = factory();
     this.current = exp;
+    const parked = experienceStore.getState().handoff;
+    // not cleared on consumption: React StrictMode remounts pages in development and the
+    // second mount must see the same handoff; staleness (HANDOFF_MAX_AGE_MS) retires it
+    const handoff = parked && performance.now() - parked.at < HANDOFF_MAX_AGE_MS ? parked : null;
     const { width, height } = this.renderer.size;
     exp.resize(width || 1, height || 1);
     if (!this.composer) {
@@ -70,7 +75,11 @@ export class Engine {
     this.renderer.canvas.dataset.experience = exp.id;
     this.renderer.canvas.dataset.experienceState = 'loading';
     try {
-      await exp.mount({ renderer: this.renderer, stage: this.stage, signal: abort.signal });
+      await exp.mount({ renderer: this.renderer, stage: this.stage, signal: abort.signal, handoff });
+      this.renderer.canvas.dataset.handoff = exp.acceptedHandoff ? 'accepted' : handoff ? 'declined' : 'none';
+      if (exp.acceptedHandoff) experienceStore.getState().set({ journey: 'seamless' });
+      // give the primary texture a moment so the reveal is not an untextured sphere
+      if (!abort.signal.aborted) await Promise.race([exp.firstPaint, new Promise((r) => setTimeout(r, 1500))]);
       // parallel shader compilation keeps the first frames off the main thread's critical path;
       // without the extension it would only front-load synchronous compiles of hidden materials
       if (!abort.signal.aborted && this.renderer.gl.extensions.has('KHR_parallel_shader_compile')) {
@@ -99,9 +108,17 @@ export class Engine {
     this.abort?.abort();
     this.abort = null;
     if (this.current) {
+      // export before teardown: the next experience may continue from this camera
+      let handoff: ReturnType<Experience['exportPose']>;
+      try {
+        handoff = this.current.exportPose();
+      } catch {
+        handoff = null;
+      }
       this.current.unmount();
       this.current = null;
-      experienceStore.getState().set({ commands: [] });
+      // a null export (e.g. an experience torn down before it was ready) keeps any fresh parked handoff
+      experienceStore.getState().set(handoff ? { commands: [], handoff } : { commands: [] });
     }
   }
 

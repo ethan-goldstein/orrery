@@ -7,6 +7,7 @@ import { Labels, type LabelEntry } from '@/engine/Labels';
 import { assetUrl, loadTexture } from '@/engine/Assets';
 import { createEarthMaterial } from '@/engine/materials/EarthMaterial';
 import { createAtmosphereShells } from '@/engine/materials/AtmosphereShell';
+import { handoffFromPose, poseFromHandoff, type Handoff } from '@/engine/Journey';
 import type { ClockState } from '@/astro/time';
 import { bodyOrientation } from '@/astro/rotation';
 import { moonPositionKm, planetPositionKm } from '@/astro/ephemeris';
@@ -55,6 +56,14 @@ export class MoonExperience extends Experience {
   private unsub: (() => void)[] = [];
   private tourTimer = 0;
   private tourIndex = 0;
+  private lastEpochMs = Date.now();
+
+  /** Rotation that turns shared-frame directions into this page's frame (sub-Earth point on +X). */
+  private frameQ(ms: number): THREE.Quaternion {
+    const rel = moonPositionKm(ms);
+    const toEarth = new THREE.Vector3(-rel[0], -rel[1], -rel[2]).normalize();
+    return new THREE.Quaternion().setFromUnitVectors(toEarth, new THREE.Vector3(1, 0, 0));
+  }
 
   override async mount(ctx: ExperienceContext): Promise<void> {
     await super.mount(ctx);
@@ -84,6 +93,28 @@ export class MoonExperience extends Experience {
     );
     this.ready = true;
     this.flyPreset(moonStore.getState().preset, true);
+    const h = ctx.handoff;
+    if (h?.bodyId === 'moon') {
+      // arriving from the Solar System with the Moon in view: keep the same vantage, then settle
+      this.rig.limits.maxDistance = R * 40;
+      this.rig.importPose({ ...poseFromHandoff(h, 1737.4, R, this.frameQ(h.epochMs)), target: new THREE.Vector3() });
+      this.acceptedHandoff = true;
+      const p = PRESETS[moonStore.getState().preset];
+      void this.rig.flyTo({ phi: ((90 - p.lat) * Math.PI) / 180, theta: ((p.lon + 90) * Math.PI) / 180, distance: p.distance }, 2.0).then(() => {
+        this.rig.limits.maxDistance = R * 14;
+      });
+    } else if (h?.bodyId === 'earth') {
+      // the lunar flight: leave Earth's side and fall into orbit around the Moon
+      this.rig.limits.maxDistance = R * 24;
+      this.rig.importPose({ theta: Math.PI / 2 + 0.35, phi: 1.3, distance: R * 20, target: new THREE.Vector3() });
+      this.acceptedHandoff = true;
+      ctx.renderer.canvas.dataset.arrival = 'flying';
+      const p = PRESETS.near;
+      void this.rig.flyTo({ phi: ((90 - p.lat) * Math.PI) / 180, theta: ((p.lon + 90) * Math.PI) / 180, distance: p.distance }, 1.8).then(() => {
+        this.rig.limits.maxDistance = R * 14;
+        ctx.renderer.canvas.dataset.arrival = 'done';
+      });
+    }
     void this.loadAssets(ctx, tier.textureTier);
     await Promise.all([
       this.stars.load(ctx.signal).catch(() => undefined),
@@ -110,6 +141,7 @@ export class MoonExperience extends Experience {
     const mat = this.moon.material as THREE.MeshStandardMaterial;
     mat.map = color;
     mat.color.set(0xffffff);
+    this.markPainted();
     if (normal) {
       mat.normalMap = normal;
       mat.normalScale.set(1.4, 1.4);
@@ -176,6 +208,7 @@ export class MoonExperience extends Experience {
     if (!this.ready) return;
     const s = moonStore.getState();
     const ms = clock.epochMs;
+    this.lastEpochMs = ms;
     // Moon orientation: IAU pole + spin (gives libration as the Earth-Moon geometry changes)
     const o = bodyOrientation('moon', ms);
     // We look at the Moon from Earth's side: keep the camera frame Earth-relative by rotating the Moon so its
@@ -227,6 +260,11 @@ export class MoonExperience extends Experience {
     c.dataset.preset = s.preset;
     c.dataset.site = s.site ?? '';
     c.dataset.lighting = s.sunlight === null ? 'real' : 'illustrative';
+  }
+
+  override exportPose(): Handoff | null {
+    if (!this.ready) return null;
+    return handoffFromPose('moon', 'moon', this.rig.pose, 1737.4, R, this.lastEpochMs, this.frameQ(this.lastEpochMs));
   }
 
   zoom(factor: number): void {

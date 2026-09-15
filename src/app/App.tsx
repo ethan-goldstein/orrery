@@ -77,7 +77,7 @@ export function App() {
 /** Fades the stage to black between worlds so a swap never flashes a half-built scene. */
 function JourneyVeil() {
   const journey = useExperienceState((s) => s.journey);
-  return <div className="journey-veil" data-active={journey ? 'true' : 'false'} aria-hidden="true" />;
+  return <div className="journey-veil" data-active={journey === 'veil' ? 'true' : 'false'} data-journey={journey || 'none'} aria-hidden="true" />;
 }
 
 function NotFound() {

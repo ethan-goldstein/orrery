@@ -18,8 +18,8 @@ for (const dir of readdirSync('public/data')) {
   }
 }
 
+// No timestamp here on purpose: the data-refresh workflow must produce an empty diff on a no-change day.
 const sources = {
-  generated: new Date().toISOString(),
   textures: manifest.textures.map((t) => ({ id: t.id, title: t.source.title, url: t.source.url, license: t.license.spdx, licenseUrl: t.license.url ?? '', attribution: t.attribution })),
   data: dataSets.map((d) => ({ id: d.id, title: d.title, summary: d.readme.split('\n').slice(1).join('\n').trim().slice(0, 600) })),
   software: [

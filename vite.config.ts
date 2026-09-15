@@ -39,7 +39,11 @@ export default defineConfig({
         navigateFallback: `${base}index.html`,
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         runtimeCaching: [
-          { urlPattern: /\/(textures|data)\//, handler: 'CacheFirst', options: { cacheName: 'orrery-assets', expiration: { maxEntries: 400, maxAgeSeconds: 60 * 60 * 24 * 90 } } },
+          // manifests and JSON indexes change between deploys: always try the network first
+          { urlPattern: /\/(textures\/manifest\.json|data\/.*\.json)$/, handler: 'NetworkFirst', options: { cacheName: 'orrery-indexes', networkTimeoutSeconds: 4, expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 30 } } },
+          // texture and binary data files are content-stable: cache first
+          { urlPattern: /\/(textures|data)\/.*\.(ktx2|webp|avif|png|jpg|bin)$/, handler: 'CacheFirst', options: { cacheName: 'orrery-assets', expiration: { maxEntries: 400, maxAgeSeconds: 60 * 60 * 24 * 90 } } },
+          { urlPattern: /\/basis\//, handler: 'CacheFirst', options: { cacheName: 'orrery-basis', expiration: { maxEntries: 4, maxAgeSeconds: 60 * 60 * 24 * 90 } } },
         ],
       },
     }),

@@ -1,0 +1,90 @@
+name: data refresh
+
+# Keeps the live datasets current without a human: earthquakes daily,
+# the satellite catalogue weekly (its element epochs change every day, so
+# weekly caps repository growth). Pushes only when rows actually changed,
+# then dispatches the CI workflow explicitly, because pushes made with the
+# built-in token do not trigger other workflows on their own.
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      celestrak:
+        description: Refresh the satellite catalogue (CelesTrak)
+        type: boolean
+        default: false
+      usgs:
+        description: Refresh earthquakes (USGS)
+        type: boolean
+        default: true
+      horizons_moons:
+        description: Re-seed the moon states from JPL Horizons (not the test fixtures)
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: data-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Decide what to refresh
+        id: plan
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "celestrak=${{ inputs.celestrak }}" >> "$GITHUB_OUTPUT"
+            echo "usgs=${{ inputs.usgs }}" >> "$GITHUB_OUTPUT"
+            echo "moons=${{ inputs.horizons_moons }}" >> "$GITHUB_OUTPUT"
+          else
+            # Monday = 1
+            if [ "$(date -u +%u)" = "1" ]; then echo "celestrak=true" >> "$GITHUB_OUTPUT"; else echo "celestrak=false" >> "$GITHUB_OUTPUT"; fi
+            echo "usgs=true" >> "$GITHUB_OUTPUT"
+            echo "moons=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Earthquakes (USGS)
+        if: steps.plan.outputs.usgs == 'true'
+        run: npx tsx scripts/fetch-usgs.ts
+      - name: Satellites (CelesTrak)
+        if: steps.plan.outputs.celestrak == 'true'
+        run: npx tsx scripts/fetch-celestrak.ts
+      - name: Moon seeds (JPL Horizons)
+        if: steps.plan.outputs.moons == 'true'
+        run: npx tsx scripts/fetch-horizons.ts --moons
+      - name: Verify data on disk
+        run: npx tsx scripts/verify-data.ts
+      - name: Regenerate credits and lint
+        run: |
+          npm run credits
+          npm run lint
+      - name: Commit and push if anything changed
+        id: commit
+        run: |
+          git add -A public/data src/generated CREDITS.md
+          if git diff --cached --quiet; then
+            echo "nothing to commit"
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
+          else
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              commit -m "data: refresh $(date -u +%F)" -m "Automated refresh by .github/workflows/data.yml"
+            git push
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Build and deploy the refreshed data
+        if: steps.commit.outputs.pushed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run ci.yml --ref main

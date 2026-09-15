@@ -14,6 +14,7 @@ test('plots thousands of near-Earth objects', async ({ page }) => {
   await expect(canvas).toHaveAttribute('data-group', 'leo');
   await expect.poll(async () => Number(await canvas.getAttribute('data-visible')), { timeout: 60_000 }).toBeGreaterThan(1000);
   await expect(page.locator('[data-testid="orbit-panel"]')).toContainText('tracked');
+  await expect(page.locator('[data-testid="orbit-snapshot"]')).toHaveText(/\d{4}-\d{2}-\d{2}/);
   expect(errors).toEqual([]);
 });
 

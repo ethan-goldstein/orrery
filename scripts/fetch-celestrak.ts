@@ -10,6 +10,8 @@
  */
 import { createHash } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { assertPlausible, unchanged } from './lib/guards';
+import { writeStatus } from './lib/status';
 
 const GROUPS = ['active', 'stations', 'analyst', 'cosmos-1408-debris', 'fengyun-1c-debris', 'iridium-33-debris', 'cosmos-2251-debris'];
 const OUT = 'public/data/orbit';
@@ -36,13 +38,18 @@ interface Omm {
 
 async function get(url: string): Promise<string> {
   for (let attempt = 0; attempt < 3; attempt++) {
-    const res = await fetch(url, { headers: { 'user-agent': 'orrery-data-pipeline (github.com/ethan-goldstein/orrery)' } });
+    const res = await fetch(url, { headers: { 'user-agent': 'orrery-data-refresh (https://github.com/ethan-goldstein/orrery)' } });
     if (res.ok) return res.text();
     console.warn(`retry ${url}: ${res.status}`);
     await new Promise((r) => setTimeout(r, 3000 * (attempt + 1)));
   }
   throw new Error(`failed ${url}`);
 }
+
+process.on('unhandledRejection', (e) => {
+  console.error(e);
+  process.exit(1);
+});
 
 const objects = new Map<number, Omm>();
 for (const g of GROUPS) {
@@ -51,8 +58,8 @@ for (const g of GROUPS) {
   try {
     rows = JSON.parse(text) as Omm[];
   } catch {
-    console.warn(`group ${g}: not JSON (${text.slice(0, 60)})`);
-    continue;
+    // a non-JSON answer is a rate limit or an outage: fail rather than commit a shrunken catalogue
+    throw new Error(`group ${g}: not JSON (${text.slice(0, 80)})`);
   }
   let added = 0;
   for (const r of rows) {
@@ -104,9 +111,14 @@ const out = [...objects.values()]
     };
   })
   .sort((a, b) => a.id - b.id);
+assertPlausible('satellites', out.length);
 const counts = out.reduce<Record<string, number>>((acc, s) => ((acc[s.t] = (acc[s.t] ?? 0) + 1), acc), {});
 const snapshot = new Date().toISOString().slice(0, 10);
 mkdirSync(OUT, { recursive: true });
+if (unchanged(`${OUT}/gp.json`, 'objects', out)) {
+  console.log(`unchanged: ${out.length} objects match the committed snapshot`);
+  process.exit(0);
+}
 const json = JSON.stringify({ snapshot, source: 'CelesTrak GP + SATCAT', count: out.length, types: { 0: 'payload', 1: 'rocket body', 2: 'debris', 3: 'unknown' }, objects: out });
 writeFileSync(`${OUT}/gp.json`, json);
 writeFileSync(
@@ -121,4 +133,5 @@ Positions are propagated in the browser with SGP4 (satellite.js) from this snaps
 kilometres per day and are not a conjunction or tracking product.
 `,
 );
+writeStatus({ orbit: { snapshot, count: out.length, updated: new Date().toISOString() } });
 console.log(`wrote ${out.length} objects, ${(json.length / 1e6).toFixed(1)} MB`, counts);

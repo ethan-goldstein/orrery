@@ -11,6 +11,8 @@ export interface QuakeState {
   selected: string | null;
   visibleCount: number;
   totalCount: number;
+  /** ISO date the USGS catalogue was retrieved */
+  retrieved: string;
   range: { start: number; end: number };
   selectedInfo: { id: string; place: string; mag: number; depthKm: number; time: number; lat: number; lon: number } | null;
   set: (patch: Partial<Omit<QuakeState, 'set'>>) => void;
@@ -23,6 +25,7 @@ export const quakeStore = createStore<QuakeState>((set) => ({
   selected: null,
   visibleCount: 0,
   totalCount: 0,
+  retrieved: '',
   range: { start: 946_684_800, end: Math.floor(Date.now() / 1000) },
   selectedInfo: null,
   set: (patch) => set(patch),

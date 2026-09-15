@@ -13,6 +13,7 @@ test('shows every M6+ quake since 2000', async ({ page }) => {
   const canvas = await ready(page);
   await expect.poll(async () => Number(await canvas.getAttribute('data-visible')), { timeout: 20_000 }).toBeGreaterThan(3500);
   await expect(page.locator('[data-testid="quakes-panel"]')).toContainText('since 2000');
+  await expect(page.locator('[data-testid="quakes-retrieved"]')).toHaveText(/\d{4}-\d{2}-\d{2}/);
   expect(errors).toEqual([]);
 });
 

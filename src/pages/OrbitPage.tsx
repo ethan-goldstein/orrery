@@ -42,6 +42,7 @@ export default function OrbitPage() {
   const visible = useOrbit((s) => s.visibleCount);
   const total = useOrbit((s) => s.totalCount);
   const info = useOrbit((s) => s.selectedInfo);
+  const snapshot = useOrbit((s) => s.snapshot);
   const cleanView = useExperienceState((s) => s.cleanView);
   const set = orbitStore.getState().set;
   const [query, setQuery] = useState('');
@@ -128,7 +129,9 @@ export default function OrbitPage() {
       <aside className="panel fixed right-4 top-20 w-64 p-4 hidden md:block" data-ui data-testid="orbit-panel">
         <p className="text-3xl font-semibold tabular-nums">{visible.toLocaleString()}</p>
         <p className="kicker">plotted objects</p>
-        <p className="text-xs text-fog-2 mt-1">of {total.toLocaleString()} tracked · CelesTrak snapshot · SGP4</p>
+        <p className="text-xs text-fog-2 mt-1">
+          of {total.toLocaleString()} tracked · CelesTrak snapshot <span data-testid="orbit-snapshot">{snapshot || '…'}</span> · SGP4
+        </p>
         <ul className="mt-3 text-xs space-y-1">
           <li>
             <span className="inline-block w-2 h-2 rounded-full mr-2" style={{ background: 'rgb(255,209,115)' }} />

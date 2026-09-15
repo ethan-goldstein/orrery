@@ -15,6 +15,8 @@ export interface OrbitState {
   playingTimeline: boolean;
   visibleCount: number;
   totalCount: number;
+  /** CelesTrak snapshot date of the loaded catalogue */
+  snapshot: string;
   selectedInfo: { name: string; id: number; type: string; owner: string; launch: number; altKm: number; speedKmS: number; periodMin: number; incl: number } | null;
   set: (patch: Partial<Omit<OrbitState, 'set'>>) => void;
 }
@@ -29,6 +31,7 @@ export const orbitStore = createStore<OrbitState>((set) => ({
   playingTimeline: false,
   visibleCount: 0,
   totalCount: 0,
+  snapshot: '',
   selectedInfo: null,
   set: (patch) => set(patch),
 }));

@@ -124,7 +124,7 @@ export class OrbitExperience extends Experience {
     const cap = ctx.renderer.tier.satelliteCap;
     // keep payloads first so a capped tier still shows the interesting objects
     this.objects = [...data.objects].sort((a, b) => a.t - b.t).slice(0, cap);
-    orbitStore.getState().set({ totalCount: this.objects.length });
+    orbitStore.getState().set({ totalCount: this.objects.length, snapshot: data.snapshot });
     this.ctx.renderer.canvas.dataset.snapshot = data.snapshot;
     this.worker = new Worker(new URL('./sgp4.worker.ts', import.meta.url), { type: 'module' });
     await new Promise<void>((resolve) => {

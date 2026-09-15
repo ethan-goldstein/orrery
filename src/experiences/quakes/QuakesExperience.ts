@@ -87,13 +87,13 @@ export class QuakesExperience extends Experience {
     await Promise.all([
       this.stars.load(ctx.signal).catch(() => undefined),
       fetch(assetUrl('data/quakes/m6.json'), { signal: ctx.signal })
-        .then((r) => r.json() as Promise<{ rows: Row[]; start: string; end: string }>)
+        .then((r) => r.json() as Promise<{ rows: Row[]; start: string; end: string; retrieved?: string }>)
         .then((d) => {
           this.rows = d.rows;
           this.build();
           const start = this.rows[0]?.[0] ?? 946_684_800;
           const end = this.rows[this.rows.length - 1]?.[0] ?? Math.floor(Date.now() / 1000);
-          quakeStore.getState().set({ totalCount: this.rows.length, range: { start, end }, throughSeconds: Math.min(quakeStore.getState().throughSeconds, end) });
+          quakeStore.getState().set({ totalCount: this.rows.length, range: { start, end }, throughSeconds: Math.min(quakeStore.getState().throughSeconds, end), retrieved: (d.retrieved ?? '').slice(0, 10) });
           this.applyPreset(quakeStore.getState().preset, true);
           const sel = quakeStore.getState().selected;
           if (sel) this.select(sel);

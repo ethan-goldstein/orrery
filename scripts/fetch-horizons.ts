@@ -104,18 +104,23 @@ async function vectors(command: number, center: string, start: string, stopDays 
   throw new Error(`Horizons failed for ${command}@${center}`);
 }
 
+const args = new Set(process.argv.slice(2));
+const doMoons = args.size === 0 || args.has('--moons');
+const doFixtures = args.size === 0 || args.has('--fixtures');
 const retrieved = new Date().toISOString();
+const SOURCE = 'NASA/JPL Horizons, https://ssd.jpl.nasa.gov/api/horizons.api';
 
 // Moons: one state at EPOCH
 const moons: Record<string, { parent: string; gm: number; epochMs: number; state: State }> = {};
-for (const m of MOONS) {
+for (const m of doMoons ? MOONS : []) {
   const rows = await vectors(m.horizons, m.center, EPOCH);
   moons[m.id] = { parent: m.parent, gm: GM[m.parent]!, epochMs: Date.parse(`${EPOCH}T00:00:00Z`), state: rows[0]!.state };
   console.log(`${m.id.padEnd(10)} |r| = ${Math.hypot(...rows[0]!.state.slice(0, 3)).toFixed(0)} km`);
 }
+if (doMoons) {
 mkdirSync('public/data/solar', { recursive: true });
 const moonsOut = {
-  source: 'NASA/JPL Horizons, https://ssd.jpl.nasa.gov/api/horizons.api',
+  source: SOURCE,
   frame: 'ecliptic J2000, planet-centred, km and km/s, geometric',
   epoch: EPOCH,
   retrieved,
@@ -137,10 +142,11 @@ Moon are computed by astronomy-engine instead.
 Central-body GM values (km^3/s^2): ${Object.entries(GM).map(([k, v]) => `${k} ${v}`).join(', ')}.
 `,
 );
+}
 
 // Fixtures: heliocentric planets + geocentric Moon at several dates
 const fixtures: Record<string, Record<string, State>> = {};
-for (const when of FIXTURES) {
+for (const when of doFixtures ? FIXTURES : []) {
   fixtures[when] = {};
   for (const p of PLANETS) {
     const rows = await vectors(p.horizons, '500@10', when);
@@ -150,7 +156,9 @@ for (const when of FIXTURES) {
   fixtures[when]['moon'] = moonRows[0]!.state;
   console.log(`fixtures ${when} done`);
 }
+if (doFixtures) {
 mkdirSync('tests/unit/astro/fixtures', { recursive: true });
-const fixtureOut = { source: moonsOut.source, frame: 'ecliptic J2000, Sun-centred (Moon: Earth-centred), km, km/s', retrieved, fixtures };
+const fixtureOut = { source: SOURCE, frame: 'ecliptic J2000, Sun-centred (Moon: Earth-centred), km, km/s', retrieved, fixtures };
 writeFileSync('tests/unit/astro/fixtures/horizons.json', JSON.stringify(fixtureOut, null, 1));
 console.log('sha256', createHash('sha256').update(JSON.stringify(fixtureOut)).digest('hex').slice(0, 16));
+}

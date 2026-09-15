@@ -1,8 +1,23 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import sources from '@/generated/sources.json';
+import { assetUrl } from '@/engine/Assets';
+
+interface DataStatus {
+  orbit?: { snapshot: string; count: number; updated: string };
+  quakes?: { retrieved: string; count: number; end: string; updated: string };
+  solar?: { epoch: string; retrieved: string; updated: string };
+}
 
 export function SourcesDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const [status, setStatus] = useState<DataStatus | null>(null);
+  useEffect(() => {
+    if (!open || status) return;
+    fetch(assetUrl('data/status.json'))
+      .then((r) => (r.ok ? (r.json() as Promise<DataStatus>) : null))
+      .then((s) => setStatus(s ?? {}))
+      .catch(() => setStatus({}));
+  }, [open, status]);
   useEffect(() => {
     const d = ref.current;
     if (!d) return;
@@ -21,6 +36,14 @@ export function SourcesDialog({ open, onClose }: { open: boolean; onClose: () =>
           in the test suite against NASA/JPL Horizons. Smaller moons are seeded from one Horizons state and propagated as two-body orbits, so
           they drift from reality over years. Illustrated scale enlarges bodies and compresses distances; true scale does not lie.
         </p>
+        {status && (status.orbit || status.quakes) && (
+          <p className="mt-3 text-xs text-fog-2" data-testid="data-status">
+            Live datasets refresh themselves:{' '}
+            {status.orbit && <>satellites from a CelesTrak snapshot of {status.orbit.snapshot} ({status.orbit.count.toLocaleString()} objects, weekly)</>}
+            {status.orbit && status.quakes && '; '}
+            {status.quakes && <>earthquakes through {status.quakes.end} ({status.quakes.count.toLocaleString()} events, daily)</>}.
+          </p>
+        )}
         <h3 className="kicker mt-5">Datasets</h3>
         <ul className="mt-2 space-y-2 text-sm">
           {sources.data.map((d) => (

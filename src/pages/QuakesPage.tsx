@@ -35,6 +35,7 @@ export default function QuakesPage() {
   const total = useQuakes((s) => s.totalCount);
   const range = useQuakes((s) => s.range);
   const info = useQuakes((s) => s.selectedInfo);
+  const retrieved = useQuakes((s) => s.retrieved);
   const cleanView = useExperienceState((s) => s.cleanView);
   const set = quakeStore.getState().set;
   const year = new Date(through * 1000).getUTCFullYear();
@@ -82,7 +83,9 @@ export default function QuakesPage() {
       <aside className="panel fixed right-4 top-20 w-64 p-4 hidden md:block" data-ui data-testid="quakes-panel">
         <p className="text-3xl font-semibold tabular-nums">{visible.toLocaleString()}</p>
         <p className="kicker">recorded M6+ earthquakes shown</p>
-        <p className="text-xs text-fog-2 mt-1">of {total.toLocaleString()} since 2000</p>
+        <p className="text-xs text-fog-2 mt-1">
+          of {total.toLocaleString()} since 2000 · USGS catalogue as of <span data-testid="quakes-retrieved">{retrieved || '…'}</span>
+        </p>
         <ul className="mt-3 text-xs space-y-1">
           <li>
             <span className="inline-block w-2 h-2 rounded-full mr-2" style={{ background: 'rgb(255,209,115)' }} />

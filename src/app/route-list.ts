@@ -13,6 +13,7 @@ export const ROUTES: RouteInfo[] = [
   { path: '/solar', id: 'solar', nav: 'Solar System', title: 'Orrery — Solar System', description: 'Eight planets and their moons at any date, in illustrated or true scale.', phase: 1 },
   { path: '/earth', id: 'earth', nav: 'Earth', title: 'Orrery — Earth', description: 'Travel through 4.54 billion years of Earth history.', phase: 2 },
   { path: '/moon', id: 'moon', nav: 'Moon', title: 'Orrery — Moon', description: 'The Moon in LRO detail, with every landing site.', phase: 2 },
+  { path: '/mars', id: 'mars', nav: 'Mars', title: 'Orrery — Mars', description: 'Mars up close: every landing site, Olympus Mons, Valles Marineris, and its two moons.', phase: 6 },
   { path: '/orbit', id: 'orbit', nav: 'Orbit', title: 'Orrery — Orbit', description: 'Thousands of tracked satellites around Earth, propagated live.', phase: 3 },
   { path: '/quakes', id: 'quakes', nav: 'Earthquakes', title: 'Orrery — Earthquakes', description: 'Every magnitude 6+ earthquake since 2000.', phase: 3 },
   { path: '/oceans', id: 'oceans', nav: 'Oceans', title: 'Orrery — Oceans', description: 'Surface currents flowing across one connected ocean.', phase: 4 },

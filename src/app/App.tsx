@@ -19,6 +19,7 @@ const pages: Record<string, LazyExoticComponent<ComponentType>> = {
   solar: lazy(() => import('@/pages/SolarPage')),
   earth: lazy(() => import('@/pages/EarthPage')),
   moon: lazy(() => import('@/pages/MoonPage')),
+  mars: lazy(() => import('@/pages/MarsPage')),
   orbit: lazy(() => import('@/pages/OrbitPage')),
   quakes: lazy(() => import('@/pages/QuakesPage')),
   oceans: lazy(() => import('@/pages/OceansPage')),

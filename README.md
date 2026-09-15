@@ -6,15 +6,16 @@ Live: https://ethan-goldstein.github.io/orrery/
 
 | World | What it shows |
 | --- | --- |
-| [Solar System](https://ethan-goldstein.github.io/orrery/solar/) | Sun, eight planets, Pluto and 22 moons at any date, computed live with astronomy-engine and validated against JPL Horizons. Real axial tilt and spin, illustrated-to-true scale morph, Saturn's rings with mutual shadows, eclipses on moons, compare-size line-up, grand tour. |
+| [Solar System](https://ethan-goldstein.github.io/orrery/solar/) | Sun, eight planets, Pluto and 22 moons at any date, computed live with astronomy-engine and validated against JPL Horizons. Real axial tilt and spin, illustrated-to-true scale morph, Saturn's rings with mutual shadows, eclipses on moons, compare-size line-up, grand tour, jumps to the next eclipse. Voyager 1 and 2, New Horizons, Parker Solar Probe and JWST on their real trajectories, plus Halley's Comet, Apophis and Bennu. |
 | [Earth](https://ethan-goldstein.github.io/orrery/earth/) | 4.54 billion years in ten eras. 109 PALEOMAP elevation frames blended in-shader, honesty labels, compare with today, story playback, three lighting moods, scroll to travel. |
+| [Mars](https://ethan-goldstein.github.io/orrery/mars/) | Mars oriented for the real date with Phobos and Deimos at their true positions, eleven landing sites from Mars 3 to Zhurong, Olympus Mons, Valles Marineris, the north pole, Hellas, and a dust slider. |
 | [Moon](https://ethan-goldstein.github.io/orrery/moon/) | LROC colour and LOLA relief, real libration and phase for the date, 17 landing sites from Luna 2 to Blue Ghost, guided tour, Earth in the sky with its true phase. |
 | [Orbit](https://ethan-goldstein.github.io/orrery/orbit/) | 19,799 tracked objects propagated with SGP4 in a worker, LEO / MEO / GEO groups, debris toggle, search, follow the ISS, the space age year by year. |
 | [Earthquakes](https://ethan-goldstein.github.io/orrery/quakes/) | Every M6+ earthquake since 2000 from USGS, sized by magnitude, coloured by depth, replayable through time. |
 | [Oceans](https://ethan-goldstein.github.io/orrery/oceans/) | OSCAR surface currents as 100k GPU-advected particles, with Gulf Stream, Pacific and Southern Ocean presets. |
 | [Civilization](https://ethan-goldstein.github.io/orrery/civilization/) | Eighteen chapters of the human story from Jebel Irhoud to today, with night lights that only appear once electricity does. |
 
-Everywhere: a command palette (Cmd+K), keyboard shortcuts (`?`), deep links for every state, a Sources dialog generated from the asset manifest, quality tiers, a mobile bottom sheet, and an installable PWA.
+Everywhere: a command palette (Cmd+K), keyboard shortcuts (`?`), deep links for every state, a Sources dialog generated from the asset manifest, quality tiers, GPU-compressed KTX2 textures, a mobile bottom sheet, and an installable PWA. Moving between worlds carries the camera across (Solar System to Earth, Earth to the Moon, the Moon or Mars back to the Solar System). The satellite and earthquake catalogues refresh themselves through a scheduled workflow with guard rails.
 
 ## Run
 

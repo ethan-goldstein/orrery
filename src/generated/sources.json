@@ -168,6 +168,11 @@
    "summary": "## coastlines.json\nNatural Earth 1:110m coastline (https://www.naturalearthdata.com/, public domain), via https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_coastline.geojson. 134 line strings, lon/lat pairs rounded to 0.01°.\n\n## chapters.json\nEighteen chapters of the human story, written for this site. Coordinates are published locations of the sites named;\ndates follow the cited sources in each chapter."
   },
   {
+   "id": "mars",
+   "title": "Mars landing sites",
+   "summary": "Planetocentric, east-positive coordinates from NASA/JPL mission pages and the USGS Astrogeology landing-site\nlist (https://astrogeology.usgs.gov/), mission dates from NASA and CNSA press material. Public facts,\ncompiled by hand; no license restrictions apply to the coordinates. Mission blurbs are original text."
+  },
+  {
    "id": "moon",
    "title": "Lunar landing sites",
    "summary": "Coordinates from the NASA NSSDCA Master Catalog (https://nssdc.gsfc.nasa.gov/planetary/lunar/) and mission\npress material from NASA, CNSA, ISRO, JAXA, Intuitive Machines and Firefly Aerospace. Public facts, compiled\nby hand; no license restrictions apply to the coordinates. Mission blurbs are original text."

@@ -17,6 +17,17 @@ describe('rotation', () => {
     expect(Math.abs(tilt - 90)).toBeGreaterThan(6);
     expect(Math.abs(tilt - 90)).toBeLessThan(10);
   });
+  it('points Mars’s pole at RA 317.68, Dec 52.89 (IAU) within a degree', () => {
+    const o = bodyOrientation('mars', Date.UTC(2026, 8, 14))!;
+    // scene north -> ecliptic -> equatorial: invert (x, z, -y) then rotate by +obliquity about x
+    const eps = (23.4392911 * Math.PI) / 180;
+    const ecl = [o.north.x, -o.north.z, o.north.y];
+    const eq = [ecl[0]!, Math.cos(eps) * ecl[1]! - Math.sin(eps) * ecl[2]!, Math.sin(eps) * ecl[1]! + Math.cos(eps) * ecl[2]!];
+    const ra = ((Math.atan2(eq[1]!, eq[0]!) * 180) / Math.PI + 360) % 360;
+    const dec = (Math.asin(eq[2]!) * 180) / Math.PI;
+    expect(Math.abs(ra - 317.68)).toBeLessThan(1);
+    expect(Math.abs(dec - 52.89)).toBeLessThan(1);
+  });
   it('spins Earth once per sidereal day', () => {
     const ms = Date.UTC(2026, 8, 14);
     const a = bodyOrientation('earth', ms)!;

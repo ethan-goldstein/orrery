@@ -772,8 +772,8 @@ export class SolarExperience extends Experience {
         const Y = new THREE.Vector3().crossVectors(Z, X).normalize();
         this.tail.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(X, Y, Z));
         this.tail.position.copy(h.scene);
-        this.tail.scale.set(len, len * 0.12, 1);
-        (this.tail.material as THREE.MeshBasicMaterial).opacity = 0.7;
+        this.tail.scale.set(len, len * 0.07, 1);
+        (this.tail.material as THREE.MeshBasicMaterial).opacity = 0.45;
         this.tail.visible = true;
       } else this.tail.visible = false;
     }

@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-const routes = ['/', '/solar', '/earth', '/moon', '/orbit', '/quakes', '/oceans', '/civilization'];
+const routes = ['/', '/solar', '/earth', '/moon', '/mars', '/orbit', '/quakes', '/oceans', '/civilization'];
 
 async function collectErrors(page: Page): Promise<string[]> {
   const errors: string[] = [];

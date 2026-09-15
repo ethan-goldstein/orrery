@@ -6,14 +6,17 @@
    "files": {
     "1k": {
      "webp": "textures/earth/earth-clouds-1k.webp",
-     "avif": "textures/earth/earth-clouds-1k.avif"
+     "avif": "textures/earth/earth-clouds-1k.avif",
+     "ktx2": "textures/earth/earth-clouds-1k.ktx2"
     },
     "2k": {
      "webp": "textures/earth/earth-clouds-2k.webp",
-     "avif": "textures/earth/earth-clouds-2k.avif"
+     "avif": "textures/earth/earth-clouds-2k.avif",
+     "ktx2": "textures/earth/earth-clouds-2k.ktx2"
     },
     "4k": {
-     "webp": "textures/earth/earth-clouds-4k.webp"
+     "webp": "textures/earth/earth-clouds-4k.webp",
+     "ktx2": "textures/earth/earth-clouds-4k.ktx2"
     }
    },
    "colorSpace": "linear",
@@ -35,14 +38,17 @@
    "files": {
     "1k": {
      "webp": "textures/earth/earth-day-1k.webp",
-     "avif": "textures/earth/earth-day-1k.avif"
+     "avif": "textures/earth/earth-day-1k.avif",
+     "ktx2": "textures/earth/earth-day-1k.ktx2"
     },
     "2k": {
      "webp": "textures/earth/earth-day-2k.webp",
-     "avif": "textures/earth/earth-day-2k.avif"
+     "avif": "textures/earth/earth-day-2k.avif",
+     "ktx2": "textures/earth/earth-day-2k.ktx2"
     },
     "4k": {
-     "webp": "textures/earth/earth-day-4k.webp"
+     "webp": "textures/earth/earth-day-4k.webp",
+     "ktx2": "textures/earth/earth-day-4k.ktx2"
     }
    },
    "colorSpace": "srgb",
@@ -64,14 +70,17 @@
    "files": {
     "1k": {
      "webp": "textures/earth/earth-night-1k.webp",
-     "avif": "textures/earth/earth-night-1k.avif"
+     "avif": "textures/earth/earth-night-1k.avif",
+     "ktx2": "textures/earth/earth-night-1k.ktx2"
     },
     "2k": {
      "webp": "textures/earth/earth-night-2k.webp",
-     "avif": "textures/earth/earth-night-2k.avif"
+     "avif": "textures/earth/earth-night-2k.avif",
+     "ktx2": "textures/earth/earth-night-2k.ktx2"
     },
     "4k": {
-     "webp": "textures/earth/earth-night-4k.webp"
+     "webp": "textures/earth/earth-night-4k.webp",
+     "ktx2": "textures/earth/earth-night-4k.ktx2"
     }
    },
    "colorSpace": "srgb",
@@ -93,14 +102,17 @@
    "files": {
     "1k": {
      "webp": "textures/earth/earth-normal-1k.webp",
-     "avif": "textures/earth/earth-normal-1k.avif"
+     "avif": "textures/earth/earth-normal-1k.avif",
+     "ktx2": "textures/earth/earth-normal-1k.ktx2"
     },
     "2k": {
      "webp": "textures/earth/earth-normal-2k.webp",
-     "avif": "textures/earth/earth-normal-2k.avif"
+     "avif": "textures/earth/earth-normal-2k.avif",
+     "ktx2": "textures/earth/earth-normal-2k.ktx2"
     },
     "4k": {
-     "webp": "textures/earth/earth-normal-4k.webp"
+     "webp": "textures/earth/earth-normal-4k.webp",
+     "ktx2": "textures/earth/earth-normal-4k.ktx2"
     }
    },
    "colorSpace": "linear",
@@ -122,14 +134,17 @@
    "files": {
     "1k": {
      "webp": "textures/earth/earth-specular-1k.webp",
-     "avif": "textures/earth/earth-specular-1k.avif"
+     "avif": "textures/earth/earth-specular-1k.avif",
+     "ktx2": "textures/earth/earth-specular-1k.ktx2"
     },
     "2k": {
      "webp": "textures/earth/earth-specular-2k.webp",
-     "avif": "textures/earth/earth-specular-2k.avif"
+     "avif": "textures/earth/earth-specular-2k.avif",
+     "ktx2": "textures/earth/earth-specular-2k.ktx2"
     },
     "4k": {
-     "webp": "textures/earth/earth-specular-4k.webp"
+     "webp": "textures/earth/earth-specular-4k.webp",
+     "ktx2": "textures/earth/earth-specular-4k.ktx2"
     }
    },
    "colorSpace": "linear",
@@ -151,14 +166,17 @@
    "files": {
     "1k": {
      "webp": "textures/solar/jupiter-1k.webp",
-     "avif": "textures/solar/jupiter-1k.avif"
+     "avif": "textures/solar/jupiter-1k.avif",
+     "ktx2": "textures/solar/jupiter-1k.ktx2"
     },
     "2k": {
      "webp": "textures/solar/jupiter-2k.webp",
-     "avif": "textures/solar/jupiter-2k.avif"
+     "avif": "textures/solar/jupiter-2k.avif",
+     "ktx2": "textures/solar/jupiter-2k.ktx2"
     },
     "4k": {
-     "webp": "textures/solar/jupiter-4k.webp"
+     "webp": "textures/solar/jupiter-4k.webp",
+     "ktx2": "textures/solar/jupiter-4k.ktx2"
     }
    },
    "colorSpace": "srgb",
@@ -180,14 +198,17 @@
    "files": {
     "1k": {
      "webp": "textures/solar/mars-1k.webp",
-     "avif": "textures/solar/mars-1k.avif"
+     "avif": "textures/solar/mars-1k.avif",
+     "ktx2": "textures/solar/mars-1k.ktx2"
     },
     "2k": {
      "webp": "textures/solar/mars-2k.webp",
-     "avif": "textures/solar/mars-2k.avif"
+     "avif": "textures/solar/mars-2k.avif",
+     "ktx2": "textures/solar/mars-2k.ktx2"
     },
     "4k": {
-     "webp": "textures/solar/mars-4k.webp"
+     "webp": "textures/solar/mars-4k.webp",
+     "ktx2": "textures/solar/mars-4k.ktx2"
     }
    },
    "colorSpace": "srgb",
@@ -209,11 +230,13 @@
    "files": {
     "1k": {
      "webp": "textures/solar/mercury-1k.webp",
-     "avif": "textures/solar/mercury-1k.avif"
+     "avif": "textures/solar/mercury-1k.avif",
+     "ktx2": "textures/solar/mercury-1k.ktx2"
     },
     "2k": {
      "webp": "textures/solar/mercury-2k.webp",
-     "avif": "textures/solar/mercury-2k.avif"
+     "avif": "textures/solar/mercury-2k.avif",
+     "ktx2": "textures/solar/mercury-2k.ktx2"
     }
    },
    "colorSpace": "srgb",
@@ -235,14 +258,17 @@
    "files": {
     "1k": {
      "webp": "textures/sky/milky-way-1k.webp",
-     "avif": "textures/sky/milky-way-1k.avif"
+     "avif": "textures/sky/milky-way-1k.avif",
+     "ktx2": "textures/sky/milky-way-1k.ktx2"
     },
     "2k": {
      "webp": "textures/sky/milky-way-2k.webp",
-     "avif": "textures/sky/milky-way-2k.avif"
+     "avif": "textures/sky/milky-way-2k.avif",
+     "ktx2": "textures/sky/milky-way-2k.ktx2"
     },
     "4k": {
-     "webp": "textures/sky/milky-way-4k.webp"
+     "webp": "textures/sky/milky-way-4k.webp",
+     "ktx2": "textures/sky/milky-way-4k.ktx2"
     }
    },
    "colorSpace": "srgb",
@@ -264,14 +290,17 @@
    "files": {
     "1k": {
      "webp": "textures/moon/moon-1k.webp",
-     "avif": "textures/moon/moon-1k.avif"
+     "avif": "textures/moon/moon-1k.avif",
+     "ktx2": "textures/moon/moon-1k.ktx2"
     },
     "2k": {
      "webp": "textures/moon/moon-2k.webp",
-     "avif": "textures/moon/moon-2k.avif"
+     "avif": "textures/moon/moon-2k.avif",
+     "ktx2": "textures/moon/moon-2k.ktx2"
     },
     "4k": {
-     "webp": "textures/moon/moon-4k.webp"
+     "webp": "textures/moon/moon-4k.webp",
+     "ktx2": "textures/moon/moon-4k.ktx2"
     }
    },
    "colorSpace": "srgb",
@@ -292,13 +321,16 @@
    "id": "moon-height",
    "files": {
     "1k": {
-     "webp": "textures/moon/moon-height-1k.webp"
+     "webp": "textures/moon/moon-height-1k.webp",
+     "ktx2": "textures/moon/moon-height-1k.ktx2"
     },
     "2k": {
-     "webp": "textures/moon/moon-height-2k.webp"
+     "webp": "textures/moon/moon-height-2k.webp",
+     "ktx2": "textures/moon/moon-height-2k.ktx2"
     },
     "4k": {
-     "webp": "textures/moon/moon-height-4k.webp"
+     "webp": "textures/moon/moon-height-4k.webp",
+     "ktx2": "textures/moon/moon-height-4k.ktx2"
     }
    },
    "colorSpace": "linear",
@@ -320,14 +352,17 @@
    "files": {
     "1k": {
      "webp": "textures/moon/moon-lroc-1k.webp",
-     "avif": "textures/moon/moon-lroc-1k.avif"
+     "avif": "textures/moon/moon-lroc-1k.avif",
+     "ktx2": "textures/moon/moon-lroc-1k.ktx2"
     },
     "2k": {
      "webp": "textures/moon/moon-lroc-2k.webp",
-     "avif": "textures/moon/moon-lroc-2k.avif"
+     "avif": "textures/moon/moon-lroc-2k.avif",
+     "ktx2": "textures/moon/moon-lroc-2k.ktx2"
     },
     "4k": {
-     "webp": "textures/moon/moon-lroc-4k.webp"
+     "webp": "textures/moon/moon-lroc-4k.webp",
+     "ktx2": "textures/moon/moon-lroc-4k.ktx2"
     }
    },
    "colorSpace": "srgb",
@@ -348,13 +383,16 @@
    "id": "moon-normal",
    "files": {
     "1k": {
-     "webp": "textures/moon/moon-normal-1k.webp"
+     "webp": "textures/moon/moon-normal-1k.webp",
+     "ktx2": "textures/moon/moon-normal-1k.ktx2"
     },
     "2k": {
-     "webp": "textures/moon/moon-normal-2k.webp"
+     "webp": "textures/moon/moon-normal-2k.webp",
+     "ktx2": "textures/moon/moon-normal-2k.ktx2"
     },
     "4k": {
-     "webp": "textures/moon/moon-normal-4k.webp"
+     "webp": "textures/moon/moon-normal-4k.webp",
+     "ktx2": "textures/moon/moon-normal-4k.ktx2"
     }
    },
    "colorSpace": "linear",
@@ -376,11 +414,13 @@
    "files": {
     "1k": {
      "webp": "textures/solar/neptune-1k.webp",
-     "avif": "textures/solar/neptune-1k.avif"
+     "avif": "textures/solar/neptune-1k.avif",
+     "ktx2": "textures/solar/neptune-1k.ktx2"
     },
     "2k": {
      "webp": "textures/solar/neptune-2k.webp",
-     "avif": "textures/solar/neptune-2k.avif"
+     "avif": "textures/solar/neptune-2k.avif",
+     "ktx2": "textures/solar/neptune-2k.ktx2"
     }
    },
    "colorSpace": "srgb",
@@ -402,14 +442,17 @@
    "files": {
     "1k": {
      "webp": "textures/solar/saturn-1k.webp",
-     "avif": "textures/solar/saturn-1k.avif"
+     "avif": "textures/solar/saturn-1k.avif",
+     "ktx2": "textures/solar/saturn-1k.ktx2"
     },
     "2k": {
      "webp": "textures/solar/saturn-2k.webp",
-     "avif": "textures/solar/saturn-2k.avif"
+     "avif": "textures/solar/saturn-2k.avif",
+     "ktx2": "textures/solar/saturn-2k.ktx2"
     },
     "4k": {
-     "webp": "textures/solar/saturn-4k.webp"
+     "webp": "textures/solar/saturn-4k.webp",
+     "ktx2": "textures/solar/saturn-4k.ktx2"
     }
    },
    "colorSpace": "srgb",
@@ -431,14 +474,17 @@
    "files": {
     "1k": {
      "webp": "textures/solar/saturn-ring-1k.webp",
-     "avif": "textures/solar/saturn-ring-1k.avif"
+     "avif": "textures/solar/saturn-ring-1k.avif",
+     "ktx2": "textures/solar/saturn-ring-1k.ktx2"
     },
     "2k": {
      "webp": "textures/solar/saturn-ring-2k.webp",
-     "avif": "textures/solar/saturn-ring-2k.avif"
+     "avif": "textures/solar/saturn-ring-2k.avif",
+     "ktx2": "textures/solar/saturn-ring-2k.ktx2"
     },
     "4k": {
-     "webp": "textures/solar/saturn-ring-4k.webp"
+     "webp": "textures/solar/saturn-ring-4k.webp",
+     "ktx2": "textures/solar/saturn-ring-4k.ktx2"
     }
    },
    "colorSpace": "srgb",
@@ -460,11 +506,13 @@
    "files": {
     "1k": {
      "webp": "textures/solar/sun-1k.webp",
-     "avif": "textures/solar/sun-1k.avif"
+     "avif": "textures/solar/sun-1k.avif",
+     "ktx2": "textures/solar/sun-1k.ktx2"
     },
     "2k": {
      "webp": "textures/solar/sun-2k.webp",
-     "avif": "textures/solar/sun-2k.avif"
+     "avif": "textures/solar/sun-2k.avif",
+     "ktx2": "textures/solar/sun-2k.ktx2"
     }
    },
    "colorSpace": "srgb",
@@ -486,11 +534,13 @@
    "files": {
     "1k": {
      "webp": "textures/solar/uranus-1k.webp",
-     "avif": "textures/solar/uranus-1k.avif"
+     "avif": "textures/solar/uranus-1k.avif",
+     "ktx2": "textures/solar/uranus-1k.ktx2"
     },
     "2k": {
      "webp": "textures/solar/uranus-2k.webp",
-     "avif": "textures/solar/uranus-2k.avif"
+     "avif": "textures/solar/uranus-2k.avif",
+     "ktx2": "textures/solar/uranus-2k.ktx2"
     }
    },
    "colorSpace": "srgb",
@@ -512,11 +562,13 @@
    "files": {
     "1k": {
      "webp": "textures/solar/venus-atmosphere-1k.webp",
-     "avif": "textures/solar/venus-atmosphere-1k.avif"
+     "avif": "textures/solar/venus-atmosphere-1k.avif",
+     "ktx2": "textures/solar/venus-atmosphere-1k.ktx2"
     },
     "2k": {
      "webp": "textures/solar/venus-atmosphere-2k.webp",
-     "avif": "textures/solar/venus-atmosphere-2k.avif"
+     "avif": "textures/solar/venus-atmosphere-2k.avif",
+     "ktx2": "textures/solar/venus-atmosphere-2k.ktx2"
     }
    },
    "colorSpace": "srgb",
@@ -538,11 +590,13 @@
    "files": {
     "1k": {
      "webp": "textures/solar/venus-surface-1k.webp",
-     "avif": "textures/solar/venus-surface-1k.avif"
+     "avif": "textures/solar/venus-surface-1k.avif",
+     "ktx2": "textures/solar/venus-surface-1k.ktx2"
     },
     "2k": {
      "webp": "textures/solar/venus-surface-2k.webp",
-     "avif": "textures/solar/venus-surface-2k.avif"
+     "avif": "textures/solar/venus-surface-2k.avif",
+     "ktx2": "textures/solar/venus-surface-2k.ktx2"
     }
    },
    "colorSpace": "srgb",

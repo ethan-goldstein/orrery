@@ -6,7 +6,7 @@ import { applyLogDepth } from './logDepth';
  * and an outer back-facing halo. Colour warms into a twilight band along the
  * terminator, so sunsets read as orange rims rather than a hard edge.
  */
-export function createAtmosphereShells(color: string, twilight: string | undefined, thickness: number): { inner: THREE.Mesh; outer: THREE.Mesh; setSun: (dir: THREE.Vector3) => void; dispose: () => void } {
+export function createAtmosphereShells(color: string, twilight: string | undefined, thickness: number, sharedGeometry?: THREE.SphereGeometry): { inner: THREE.Mesh; outer: THREE.Mesh; setSun: (dir: THREE.Vector3) => void; dispose: () => void } {
   const uniforms = () => ({
     uColor: { value: new THREE.Color(color) },
     uTwilight: { value: new THREE.Color(twilight ?? color) },
@@ -42,7 +42,8 @@ export function createAtmosphereShells(color: string, twilight: string | undefin
   const uOut = uniforms();
   uOut.uPower.value = 5.5;
   uOut.uAlpha.value = 0.38;
-  const geo = new THREE.SphereGeometry(1, 96, 64);
+  const geo = sharedGeometry ?? new THREE.SphereGeometry(1, 96, 64);
+  const ownsGeometry = !sharedGeometry;
   const inner = new THREE.Mesh(geo, applyLogDepth(new THREE.ShaderMaterial({ uniforms: uIn, vertexShader: vertex, fragmentShader: fragment(false), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.FrontSide })));
   const outer = new THREE.Mesh(geo, applyLogDepth(new THREE.ShaderMaterial({ uniforms: uOut, vertexShader: vertex, fragmentShader: fragment(true), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.BackSide })));
   inner.scale.setScalar(1 + thickness * 0.35);
@@ -57,7 +58,7 @@ export function createAtmosphereShells(color: string, twilight: string | undefin
       uOut.uSunDir.value.copy(dir);
     },
     dispose: () => {
-      geo.dispose();
+      if (ownsGeometry) geo.dispose();
       (inner.material as THREE.Material).dispose();
       (outer.material as THREE.Material).dispose();
     },

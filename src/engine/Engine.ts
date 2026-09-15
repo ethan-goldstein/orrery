@@ -6,6 +6,7 @@ import { settingsStore } from '@/store/settings';
 import { clockStore } from '@/store/clock';
 import { advance } from '@/astro/time';
 import { experienceStore } from '@/store/experience';
+import { enableKtx2, ktx2Enabled } from './Assets';
 
 export type ExperienceFactory = () => Experience;
 
@@ -30,6 +31,8 @@ export class Engine {
     const tier = override === 'auto' ? probed : override;
     settingsStore.getState().setProbedQuality(probed);
     this.renderer = new Renderer(container, tier);
+    enableKtx2(this.renderer.gl);
+    this.renderer.canvas.dataset.ktx2 = ktx2Enabled() ? 'true' : 'false';
     this.unsubscribers.push(
       this.renderer.onFrame((dt) => this.frame(dt)),
       this.renderer.onResize((w, h) => {

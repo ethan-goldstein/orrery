@@ -29,7 +29,9 @@ test('deep link focuses Saturn in true scale', async ({ page }) => {
 
 test('system view lists the planets and shows labels', async ({ page }) => {
   await page.goto('./solar?t=2026-09-14T12:00:00Z&rate=0');
-  await ready(page);
+  const canvas = await ready(page);
+  // compressed textures take the KTX2 path wherever the GPU can transcode them
+  if ((await canvas.getAttribute('data-ktx2')) === 'true') await expect.poll(async () => Number(await canvas.getAttribute('data-ktx2-loaded')), { timeout: 30_000 }).toBeGreaterThan(3);
   const strip = page.locator('[data-testid="planet-strip"] button');
   await expect(strip).toHaveCount(10);
   await expect.poll(() => page.locator('.body-label:not([hidden])').count(), { timeout: 10_000 }).toBeGreaterThan(4);

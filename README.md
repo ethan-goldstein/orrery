@@ -30,6 +30,7 @@ python3 -m venv scripts/.venv && scripts/.venv/bin/pip install netCDF4 numpy pil
 scripts/.venv/bin/python scripts/paleodem-to-frames.py   # needs the PaleoDEM zip in scripts/.cache/paleo (see script)
 scripts/.venv/bin/python scripts/oscar-to-flow.py
 scripts/.venv/bin/python scripts/moon-normal.py
+npx tsx scripts/build-ktx2.ts        # GPU-compressed KTX2 copies of every texture (Basis Universal wasm encoder in scripts/.cache/basis)
 npm run credits                      # regenerate CREDITS.md and the Sources dialog
 npm run dev
 ```
@@ -51,7 +52,7 @@ Serve under the GitHub Pages subpath locally with `BASE_PATH=/orrery/ npm run bu
 - `src/astro` pure astronomy: frames, time, ephemeris wrappers, rotation, scale morph
 - `src/experiences/<page>` one Experience subclass per page
 - `src/ui` React chrome, `src/store` zustand state shared by React and the engine
-- `scripts/` reproducible data pipelines; outputs committed under `public/data`
+- `scripts/` reproducible data pipelines; outputs committed under `public/data`. Textures ship as WebP/AVIF tiers plus KTX2 (ETC1S for colour, UASTC for normal maps); the loader picks KTX2 when the GPU can transcode it and falls back to WebP otherwise.
 - `tests/unit` vitest, `tests/e2e` Playwright
 
 See CREDITS.md for data and imagery licenses.

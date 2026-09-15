@@ -82,6 +82,9 @@ export class SolarExperience extends Experience {
   private cloudShift = 0;
   private sunUniformTime = 0;
   private lastFrameMs = 0;
+  /** unit spheres shared by every body, swapped per frame by projected size */
+  private lod: { high: THREE.SphereGeometry; mid: THREE.SphereGeometry; low: THREE.SphereGeometry } | null = null;
+  private lodAtmo: THREE.SphereGeometry | null = null;
 
   override async mount(ctx: ExperienceContext): Promise<void> {
     await super.mount(ctx);
@@ -92,6 +95,14 @@ export class SolarExperience extends Experience {
     this.scene.add(this.stars.points, this.pathsGroup, this.sunLight, this.flare.group, new THREE.AmbientLight(0x1a2233, 0.12));
     this.stars.setPixelRatio(ctx.renderer.gl.getPixelRatio());
 
+    // shared geometry: three detail levels for bodies, one for atmosphere shells
+    const segs = tier.sphereSegments;
+    this.lod = {
+      high: new THREE.SphereGeometry(1, segs, segs / 2),
+      mid: new THREE.SphereGeometry(1, Math.max(32, segs / 3), Math.max(16, segs / 6)),
+      low: new THREE.SphereGeometry(1, 20, 12),
+    };
+    this.lodAtmo = new THREE.SphereGeometry(1, 48, 32);
     // bodies
     for (const info of BODIES) this.nodes.set(info.id, this.createNode(info, tier.sphereSegments));
 
@@ -173,7 +184,8 @@ export class SolarExperience extends Experience {
             node.material = mat;
             old.dispose();
             if (clouds) {
-              const cm = new THREE.Mesh(new THREE.SphereGeometry(1.004, 96, 64), createCloudMaterial(clouds));
+              const cm = new THREE.Mesh(this.lod!.mid, createCloudMaterial(clouds));
+              cm.scale.setScalar(1.004);
               cm.renderOrder = 1;
               node.group.add(cm);
               node.clouds = cm;
@@ -219,8 +231,8 @@ export class SolarExperience extends Experience {
   private createNode(info: BodyInfo, segments: number): Node {
     const group = new THREE.Group();
     group.name = info.id;
-    const seg = info.kind === 'moon' ? Math.max(48, segments / 2) : segments;
-    const geo = new THREE.SphereGeometry(1, seg, seg / 2);
+    void segments;
+    const geo = this.lod!.low;
     let material: Node['material'];
     let corona: THREE.Sprite | null = null;
     if (info.emissive) {
@@ -236,7 +248,7 @@ export class SolarExperience extends Experience {
     group.add(mesh);
     let atmosphere: Node['atmosphere'] = null;
     if (info.atmosphere) {
-      atmosphere = createAtmosphereShells(info.atmosphere.color, info.atmosphere.twilight, info.atmosphere.thickness);
+      atmosphere = createAtmosphereShells(info.atmosphere.color, info.atmosphere.twilight, info.atmosphere.thickness, this.lodAtmo!);
       group.add(atmosphere.inner, atmosphere.outer);
     }
     const rings: Node['rings'] = [];
@@ -573,6 +585,11 @@ export class SolarExperience extends Experience {
       const showMoon = state.view === 'compare' ? info.id === 'moon' : moonRelevant && (this.scaleMix > 0.5 || state.view === 'moons' || state.view === 'planet');
       const visible = node.visible && (!isMoon || showMoon);
       node.group.visible = visible;
+      if (visible && this.lod) {
+        const want = px > 220 ? this.lod.high : px > 28 ? this.lod.mid : this.lod.low;
+        if (node.mesh.geometry !== want) node.mesh.geometry = want;
+        if (node.clouds && node.clouds.geometry !== want) node.clouds.geometry = want;
+      }
       if (node.path) {
         const wide = state.view === 'system' || state.view === 'inner';
         if (state.view === 'compare') node.path.line.visible = false;
@@ -709,6 +726,10 @@ export class SolarExperience extends Experience {
     this.stars.dispose();
     this.milkyWay?.dispose();
     this.flare.dispose();
+    this.lod?.high.dispose();
+    this.lod?.mid.dispose();
+    this.lod?.low.dispose();
+    this.lodAtmo?.dispose();
     for (const node of this.nodes.values()) {
       node.path?.dispose();
       node.trail?.dispose();

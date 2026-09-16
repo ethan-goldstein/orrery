@@ -4,6 +4,7 @@ import { EngineProvider } from './EngineContext';
 import { Rail } from '@/ui/shell/Rail';
 import { InstrumentBar } from '@/ui/shell/InstrumentBar';
 import { StatusLine } from '@/ui/shell/StatusLine';
+import { ControlsHint } from '@/ui/shell/ControlsHint';
 import { ROUTES } from './route-list';
 import { parseSharedState } from './url-state';
 import { clockStore } from '@/store/clock';
@@ -65,6 +66,7 @@ export function App() {
             </MobileSheet>
           </Suspense>
           <div className="chrome-foot">
+            <ControlsHint />
             <StatusLine />
             <InstrumentBar />
           </div>

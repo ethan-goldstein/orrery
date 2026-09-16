@@ -110,3 +110,18 @@ test('keyboard zoom and double-click', async ({ page }) => {
   const dbl = await settled(page);
   expect(dbl).toBeLessThan(nearer * 0.8);
 });
+
+test.describe('reduced motion', () => {
+  test.use({ reducedMotion: 'reduce' });
+  test('camera moves arrive almost at once', async ({ page }) => {
+    await page.goto('./moon?t=2026-09-14T12:00:00Z&rate=0');
+    await ready(page);
+    const home = await settled(page);
+    await page.getByRole('button', { name: 'Zoom in' }).click();
+    await page.waitForTimeout(700);
+    const d = await num(page, 'data-camera-distance');
+    // two notches in: e^(2 ln 1.12) ≈ 1.254, reached within the wait rather than still easing
+    expect(d).toBeGreaterThan(home / 1.2544 / 1.01);
+    expect(d).toBeLessThan(home / 1.2544 * 1.01);
+  });
+});

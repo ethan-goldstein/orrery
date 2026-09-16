@@ -8,7 +8,7 @@ import { createHistoryEarthMaterial } from '@/engine/materials/HistoryEarthMater
 import { createCloudMaterial } from '@/engine/materials/EarthMaterial';
 import { createAtmosphereShells } from '@/engine/materials/AtmosphereShell';
 import { handoffFromPose, poseFromHandoff, type Handoff } from '@/engine/Journey';
-import { formatDistanceKm } from '@/engine/motion';
+import { formatDistanceKm, portraitScale } from '@/engine/motion';
 import { UNITS_PER_KM } from '@/astro/scale';
 import type { ClockState } from '@/astro/time';
 import { bodyOrientation } from '@/astro/rotation';
@@ -65,15 +65,16 @@ export class EarthExperience extends Experience {
     this.atmosphere.outer.scale.multiplyScalar(EARTH_RADIUS);
     this.scene.add(this.atmosphere.inner, this.atmosphere.outer);
 
-    this.rig = new CameraRig(this.camera, ctx.stage, { distance: EARTH_RADIUS * 3.1, phi: 1.25, theta: 0.6 });
+    this.rig = new CameraRig(this.camera, ctx.stage, { distance: EARTH_RADIUS * 3.1 * portraitScale(this.camera.aspect), phi: 1.25, theta: 0.6 });
     this.rig.limits = { minDistance: EARTH_RADIUS * 1.15, maxDistance: EARTH_RADIUS * 12, minPolar: 0.05, maxPolar: Math.PI - 0.05 };
     if (ctx.handoff?.bodyId === 'earth') {
       // continue from wherever the last world left the camera, then glide to the default framing
       this.rig.limits.maxDistance = EARTH_RADIUS * 40;
       this.rig.importPose({ ...poseFromHandoff(ctx.handoff, 6371, EARTH_RADIUS), target: new THREE.Vector3() });
       this.acceptedHandoff = true;
-      this.rig.setHome({ distance: EARTH_RADIUS * 3.1, phi: 1.25, target: new THREE.Vector3() });
-      void this.rig.flyTo({ distance: EARTH_RADIUS * 3.1, phi: 1.25, target: new THREE.Vector3() }).then(() => {
+      const home = { distance: this.rig.fit(EARTH_RADIUS * 3.1), phi: 1.25, target: new THREE.Vector3() };
+      this.rig.setHome(home);
+      void this.rig.flyTo(home).then(() => {
         this.rig.limits.maxDistance = EARTH_RADIUS * 12;
       });
     }

@@ -159,8 +159,9 @@ export class QuakesExperience extends Experience {
     const p = PRESETS[preset];
     const phi = ((90 - p.lat) * Math.PI) / 180;
     const theta = ((p.lon + 90) * Math.PI) / 180;
-    if (immediate) this.rig.importPose({ phi, theta, distance: p.distance, target: new THREE.Vector3() });
-    else void this.rig.flyTo({ phi, theta, distance: p.distance, target: new THREE.Vector3() });
+    const distance = this.rig.fit(p.distance);
+    if (immediate) this.rig.importPose({ phi, theta, distance, target: new THREE.Vector3() });
+    else void this.rig.flyTo({ phi, theta, distance, target: new THREE.Vector3() });
     if (preset === 'japan2011') quakeStore.getState().set({ throughSeconds: 1_302_000_000 });
     else if (quakeStore.getState().throughSeconds < quakeStore.getState().range.end - 86400 && !quakeStore.getState().playing && preset !== 'all') quakeStore.getState().set({ throughSeconds: quakeStore.getState().range.end });
   }
@@ -180,7 +181,7 @@ export class QuakesExperience extends Experience {
     quakeStore.getState().set({ selectedInfo: { id: r[6], place: r[5], mag: r[4], depthKm: r[3], time: r[0], lat: r[1], lon: r[2] } });
     const phi = ((90 - r[1]) * Math.PI) / 180;
     const theta = ((r[2] + 90) * Math.PI) / 180;
-    void this.rig.flyTo({ phi, theta, distance: Math.min(this.rig.pose.distance, R * 2.2), target: new THREE.Vector3() });
+    void this.rig.flyTo({ phi, theta, distance: Math.min(this.rig.pose.distance, this.rig.fit(R * 2.2)), target: new THREE.Vector3() });
   }
 
   private pick(clientX: number, clientY: number): void {

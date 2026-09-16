@@ -132,7 +132,7 @@ export class CivilizationExperience extends Experience {
     if (!c) return;
     const phi = ((90 - c.lat) * Math.PI) / 180;
     const theta = ((c.lon + 90) * Math.PI) / 180;
-    const distance = R * (1 + c.zoom * 0.42);
+    const distance = this.rig.fit(R * (1 + c.zoom * 0.42));
     if (immediate) this.rig.importPose({ phi, theta, distance, target: new THREE.Vector3() });
     else void this.rig.flyTo({ phi, theta, distance, target: new THREE.Vector3() });
     civStore.getState().set({ night: c.night });

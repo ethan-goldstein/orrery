@@ -4,6 +4,7 @@ import { ROUTES } from "@/app/route-list";
 import { useExperience } from "@/store/experience";
 import { SourcesDialog } from "@/ui/SourcesDialog";
 import { SettingsButton } from "@/ui/Settings";
+import { ShareMenu } from "./ShareMenu";
 import { prefetchRoute } from "@/app/prefetch";
 import { Glyph, type GlyphName } from "./icons";
 
@@ -50,6 +51,7 @@ export function Rail() {
           })}
         </ul>
         <div className="rail-foot">
+          <ShareMenu />
           <button
             className="rail-link"
             onClick={() => setSources(true)}

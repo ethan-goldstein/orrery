@@ -135,6 +135,13 @@ export class Engine {
     this.composer.render(dt);
   }
 
+  /** Render one frame and hand back the pixels (the drawing buffer is read before the next composite). */
+  capture(): Promise<Blob | null> {
+    if (!this.current || !this.composer) return Promise.resolve(null);
+    this.composer.render(0);
+    return new Promise((resolve) => this.renderer.canvas.toBlob(resolve, 'image/png'));
+  }
+
   dispose(): void {
     this.unmount();
     this.unsubscribers.forEach((u) => u());

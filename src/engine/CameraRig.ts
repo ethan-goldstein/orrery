@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { anchoredTarget, clamp, direction, easeInOutCubic, easeOutQuint, flightDuration, liftFor, normalizeWheel, NOTCH, smoothDamp, smoothDampVec3, softClamp, type SpringRef } from './motion';
+import { anchoredTarget, clamp, direction, easeInOutCubic, easeOutQuint, flightDuration, liftFor, normalizeWheel, NOTCH, portraitScale, smoothDamp, smoothDampVec3, softClamp, type SpringRef } from './motion';
 import { cameraStore, type CameraRequest } from '@/store/camera';
 
 export interface Pose {
@@ -321,6 +321,11 @@ export class CameraRig {
       this.goal.target.copy(p.target);
       this.smooth.target = smoothTime;
     }
+  }
+
+  /** A landscape-tuned framing distance, widened for a portrait viewport. */
+  fit(distance: number): number {
+    return distance * portraitScale(this.camera.aspect);
   }
 
   /** Remember the pose "Reset view" returns to (defaults to the current pose). */

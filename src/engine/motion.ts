@@ -138,3 +138,13 @@ export function formatDistanceKm(km: number): string {
   if (km >= 1e6) return `${(km / 1e6).toFixed(2)} million km`;
   return `${Math.round(km).toLocaleString('en-US')} km`;
 }
+
+/**
+ * Preset distances are tuned for a landscape frame. In a portrait frame the
+ * horizontal field of view is the narrow one, so widen the shot by the
+ * inverse aspect (capped so a very tall phone does not fly to the Moon).
+ */
+export function portraitScale(aspect: number): number {
+  if (!(aspect > 0) || aspect >= 1) return 1;
+  return Math.min(2.4, 1 / aspect);
+}

@@ -243,3 +243,11 @@ kbd { font: 11px var(--font-mono); padding: 1px 5px; border-radius: 2px; border:
 .drawer dd { overflow-wrap: anywhere; }
 
 .chip, .seg-btn { white-space: nowrap; }
+
+/* share */
+.share-pop { width: 17rem; }
+.share-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.share-hint { font-size: 0.72rem; color: var(--color-paper-3); margin-top: 10px; line-height: 1.4; }
+.share-status { font-family: var(--font-mono); font-size: 0.7rem; margin-top: 8px; min-height: 1rem; color: var(--color-paper-2); }
+.share-status.is-ok { color: var(--color-brass-2); }
+.share-status.is-err { color: #e08a7a; }

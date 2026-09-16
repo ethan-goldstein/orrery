@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
-import { anchoredTarget, easeInOutCubic, easeOutQuint, flightDuration, formatDistanceKm, liftFor, normalizeWheel, NOTCH, smoothDamp, smoothDampVec3, softClamp } from '@/engine/motion';
+import { anchoredTarget, easeInOutCubic, easeOutQuint, flightDuration, formatDistanceKm, liftFor, normalizeWheel, NOTCH, portraitScale, smoothDamp, smoothDampVec3, softClamp } from '@/engine/motion';
 
 const settle = (hz: number, smoothTime: number, from: number, to: number) => {
   const ref = { v: 0 };
@@ -140,5 +140,16 @@ describe('formatDistanceKm', () => {
     expect(formatDistanceKm(12_430.4)).toBe('12,430 km');
     expect(formatDistanceKm(1_520_000)).toBe('1.52 million km');
     expect(formatDistanceKm(149_597_870.7 * 3.21)).toBe('3.21 AU');
+  });
+});
+
+describe('portraitScale', () => {
+  it('leaves landscape alone and widens portrait, capped', () => {
+    expect(portraitScale(16 / 9)).toBe(1);
+    expect(portraitScale(1)).toBe(1);
+    expect(portraitScale(0.5)).toBe(2);
+    expect(portraitScale(375 / 812)).toBeCloseTo(812 / 375, 9);
+    expect(portraitScale(0.1)).toBe(2.4);
+    expect(portraitScale(NaN)).toBe(1);
   });
 });

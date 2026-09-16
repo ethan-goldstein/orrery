@@ -236,8 +236,9 @@ export class OceansExperience extends Experience {
     const p = PRESETS[preset];
     const phi = ((90 - p.lat) * Math.PI) / 180;
     const theta = ((p.lon + 90) * Math.PI) / 180;
-    if (immediate) this.rig.importPose({ phi, theta, distance: p.distance, target: new THREE.Vector3() });
-    else void this.rig.flyTo({ phi, theta, distance: p.distance, target: new THREE.Vector3() });
+    const distance = this.rig.fit(p.distance);
+    if (immediate) this.rig.importPose({ phi, theta, distance, target: new THREE.Vector3() });
+    else void this.rig.flyTo({ phi, theta, distance, target: new THREE.Vector3() });
   }
 
   update(dt: number, _clock: ClockState): void {

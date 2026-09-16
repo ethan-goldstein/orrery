@@ -3,7 +3,7 @@ import { Experience, type Command, type ExperienceContext } from '@/engine/Exper
 import { Starfield } from '@/engine/Starfield';
 import { applyLogDepth } from '@/engine/materials/logDepth';
 import { CameraRig } from '@/engine/CameraRig';
-import { formatDistanceKm } from '@/engine/motion';
+import { formatDistanceKm, portraitScale } from '@/engine/motion';
 import { UNITS_PER_KM } from '@/astro/scale';
 import { OrbitLine } from '@/engine/OrbitLine';
 import { Labels } from '@/engine/Labels';
@@ -74,7 +74,7 @@ export class OrbitExperience extends Experience {
     this.atmo.inner.scale.multiplyScalar(R);
     this.atmo.outer.scale.multiplyScalar(R);
     this.scene.add(this.atmo.inner, this.atmo.outer);
-    this.rig = new CameraRig(this.camera, ctx.stage, { distance: R * 3.6, phi: 1.2, theta: 0.5 });
+    this.rig = new CameraRig(this.camera, ctx.stage, { distance: R * 3.6 * portraitScale(this.camera.aspect), phi: 1.2, theta: 0.5 });
     this.rig.limits = { minDistance: R * 1.02, maxDistance: R * 16, minPolar: 0.05, maxPolar: Math.PI - 0.05 };
     this.rig.anchor = { center: new THREE.Vector3(), radius: R };
     this.rig.readout = (d) => `${formatDistanceKm((d - R) / UNITS_PER_KM)} up`;
@@ -254,7 +254,7 @@ export class OrbitExperience extends Experience {
 
   private frameGroup(group: OrbitGroup): void {
     const d = group === 'leo' ? R * 3.4 : group === 'meo' ? R * 8 : group === 'geo' ? R * 12 : R * 13;
-    void this.rig.flyTo({ distance: d, target: new THREE.Vector3() });
+    void this.rig.flyTo({ distance: this.rig.fit(d), target: new THREE.Vector3() });
   }
 
   private pick(clientX: number, clientY: number): void {

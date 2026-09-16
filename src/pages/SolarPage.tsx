@@ -9,6 +9,8 @@ import { useExperience as useExperienceState } from '@/store/experience';
 import { writeUrl } from '@/app/url-state';
 import { upcomingEvents, type AstroEvent } from '@/astro/events';
 import { clockStore, useClock } from '@/store/clock';
+import { WorldDock } from '@/ui/shell/WorldDock';
+import { useNarrow } from '@/ui/shell/useNarrow';
 
 const factory = () => new SolarExperience();
 
@@ -115,6 +117,7 @@ export default function SolarPage() {
   const craft = CRAFT_BY_ID.get(focus);
   const kicker = view === 'compare' ? 'True relative sizes' : view === 'system' ? 'Beyond our world' : view === 'inner' ? 'The rocky worlds' : craft ? (craft.kind === 'probe' ? `Spacecraft · ${craft.agency}` : craft.kind) : info.kind === 'moon' ? `Moon of ${bodyInfo(info.parent!).name}` : info.kind;
 
+  const narrow = useNarrow();
   if (cleanView) return null;
   return (
     <>
@@ -156,6 +159,11 @@ export default function SolarPage() {
           )}
         </div>
         <Moments />
+        {narrow && (
+          <div className="plate-row" data-ui>
+            <WorldDock />
+          </div>
+        )}
       </section>
       <InfoPanel id={focus} />
     </>

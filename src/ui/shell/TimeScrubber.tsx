@@ -2,30 +2,7 @@ import { useMemo, useRef, useState, type KeyboardEvent, type PointerEvent, type 
 import { clockStore, useClock } from '@/store/clock';
 import { clampMs, formatUtc } from '@/astro/time';
 
-const MIN = 60_000;
-const HOUR = 3_600_000;
-const DAY = 86_400_000;
-const YEAR = 31_557_600_000;
-/** tick spacings to choose from, ms */
-const STEPS = [MIN, 5 * MIN, 15 * MIN, HOUR, 6 * HOUR, DAY, 7 * DAY, 30.44 * DAY, YEAR, 10 * YEAR, 100 * YEAR, 1000 * YEAR];
-
-/** Half-width of the visible window: two minutes of playback at the current rate, clamped to 6 h … 200 y. */
-export function windowHalfWidthMs(rate: number): number {
-  return Math.min(200 * YEAR, Math.max(6 * HOUR, Math.abs(rate) * 120 * 1000));
-}
-
-export function tickStepFor(halfWidth: number): number {
-  const span = 2 * halfWidth;
-  for (const s of STEPS) if (span / s <= 12) return s;
-  return STEPS[STEPS.length - 1]!;
-}
-
-function tickLabel(ms: number, step: number): string {
-  const d = new Date(ms);
-  if (step >= YEAR) return String(d.getUTCFullYear());
-  if (step >= DAY) return `${d.getUTCDate()} ${d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' })}`;
-  return `${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`;
-}
+import { tickLabel, tickStepFor, windowHalfWidthMs } from './scrubber-math';
 
 /**
  * A real scrubber for simulation time: the needle stays centred, the track

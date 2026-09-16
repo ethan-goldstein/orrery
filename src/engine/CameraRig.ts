@@ -87,6 +87,9 @@ export class CameraRig {
   private anchorPoint: THREE.Vector3 | null = null;
   private telemetryMs = 0;
   private disposers: (() => void)[] = [];
+  /** set once an experience frames through fit(): the rig then re-fits when the viewport aspect changes */
+  private fitsPortrait = false;
+  private lastFitScale = 1;
 
   constructor(readonly camera: THREE.PerspectiveCamera, readonly element: HTMLElement, initial?: Partial<Pose>) {
     this.pose = {
@@ -104,7 +107,31 @@ export class CameraRig {
         if (s.request && s.request !== prev.request) this.handleRequest(s.request);
       }),
     );
+    if (typeof ResizeObserver === 'function') {
+      const ro = new ResizeObserver(() => this.refit());
+      ro.observe(element);
+      this.disposers.push(() => ro.disconnect());
+    }
     this.apply();
+  }
+
+  /** A phone rotated: keep the framed body the same apparent size. */
+  private refit(): void {
+    if (!this.fitsPortrait) return;
+    const w = this.element.clientWidth;
+    const h = this.element.clientHeight;
+    if (!(w > 0 && h > 0)) return;
+    const scale = portraitScale(w / h);
+    const k = scale / this.lastFitScale;
+    if (Math.abs(Math.log(k)) < 1e-3) return;
+    this.lastFitScale = scale;
+    this.home.distance *= k;
+    if (this.flight) {
+      this.flight.to.distance *= k;
+      return;
+    }
+    this.goal.logDistance += Math.log(k);
+    this.smooth.logDistance = 0.6;
   }
 
   /* ---------- input ---------- */
@@ -325,7 +352,9 @@ export class CameraRig {
 
   /** A landscape-tuned framing distance, widened for a portrait viewport. */
   fit(distance: number): number {
-    return distance * portraitScale(this.camera.aspect);
+    this.fitsPortrait = true;
+    this.lastFitScale = portraitScale(this.camera.aspect);
+    return distance * this.lastFitScale;
   }
 
   /** Remember the pose "Reset view" returns to (defaults to the current pose). */

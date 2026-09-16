@@ -49,10 +49,10 @@ export function InstrumentBar() {
   }, [followNow, rate, minute]);
 
   if (cleanView) return null;
-  const rateIndex = RATES.findIndex((r) => r >= rate);
+  // strictly past the current rate, so Frozen steps up to real time and a custom rate lands on a preset
   const stepRate = (dir: 1 | -1) => {
-    const i = rateIndex < 0 ? RATES.length - 1 : rateIndex;
-    setRate(RATES[Math.min(RATES.length - 1, Math.max(0, i + dir))]!);
+    const next = dir > 0 ? RATES.find((r) => r > rate) : [...RATES].reverse().find((r) => r < rate);
+    if (next !== undefined) setRate(next);
   };
   const earth = active === 'earth';
   return (

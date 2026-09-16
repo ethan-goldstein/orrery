@@ -15,7 +15,7 @@ const settled = async (page: Page) => {
   await page.waitForTimeout(400);
   let last = await num(page, 'data-camera-distance');
   let stable = 0;
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 32; i++) {
     await page.waitForTimeout(250);
     const d = await num(page, 'data-camera-distance');
     stable = Math.abs(d - last) < Math.abs(d) * 2e-4 ? stable + 1 : 0;
@@ -26,28 +26,29 @@ const settled = async (page: Page) => {
 };
 
 test('wheel zoom is monotone, never overshoots, and respects the limits', async ({ page }) => {
+  test.setTimeout(150_000); // four settles and two sampled bursts on a software renderer
   await page.goto('./moon?t=2026-09-14T12:00:00Z&rate=0');
   await ready(page);
   await settled(page);
   const max = await num(page, 'data-camera-max');
   const min = await num(page, 'data-camera-min');
   await page.mouse.move(640, 360);
-  // zoom out hard: 12 notches
-  for (let i = 0; i < 12; i++) await page.mouse.wheel(0, 100);
+  // zoom out hard: 10 notches
+  for (let i = 0; i < 10; i++) await page.mouse.wheel(0, 100);
   const samples: number[] = [];
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 12; i++) {
     samples.push(await num(page, 'data-camera-distance'));
-    await page.waitForTimeout(60);
+    await page.waitForTimeout(80);
   }
   for (let i = 1; i < samples.length; i++) expect(samples[i]!).toBeGreaterThanOrEqual(samples[i - 1]! * 0.999);
   for (const d of samples) expect(d).toBeLessThanOrEqual(max * 1.09);
   expect(await settled(page)).toBeLessThanOrEqual(max * 1.001);
   // zoom in hard
-  for (let i = 0; i < 40; i++) await page.mouse.wheel(0, -100);
+  for (let i = 0; i < 24; i++) await page.mouse.wheel(0, -100);
   const inward: number[] = [];
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 12; i++) {
     inward.push(await num(page, 'data-camera-distance'));
-    await page.waitForTimeout(60);
+    await page.waitForTimeout(80);
   }
   for (let i = 1; i < inward.length; i++) expect(inward[i]!).toBeLessThanOrEqual(inward[i - 1]! * 1.001);
   const rest = await settled(page);

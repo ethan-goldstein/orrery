@@ -4,7 +4,7 @@ export function StatusLine() {
   const load = useExperience((s) => s.load);
   const status = useExperience((s) => s.status);
   return (
-    <p role="status" aria-live="polite" className="kicker min-h-4" data-load={load}>
+    <p role="status" aria-live="polite" className="status-line" data-load={load}>
       {status}
     </p>
   );

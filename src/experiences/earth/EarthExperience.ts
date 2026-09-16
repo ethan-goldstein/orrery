@@ -8,6 +8,8 @@ import { createHistoryEarthMaterial } from '@/engine/materials/HistoryEarthMater
 import { createCloudMaterial } from '@/engine/materials/EarthMaterial';
 import { createAtmosphereShells } from '@/engine/materials/AtmosphereShell';
 import { handoffFromPose, poseFromHandoff, type Handoff } from '@/engine/Journey';
+import { formatDistanceKm } from '@/engine/motion';
+import { UNITS_PER_KM } from '@/astro/scale';
 import type { ClockState } from '@/astro/time';
 import { bodyOrientation } from '@/astro/rotation';
 import { planetPositionKm } from '@/astro/ephemeris';
@@ -70,23 +72,19 @@ export class EarthExperience extends Experience {
       this.rig.limits.maxDistance = EARTH_RADIUS * 40;
       this.rig.importPose({ ...poseFromHandoff(ctx.handoff, 6371, EARTH_RADIUS), target: new THREE.Vector3() });
       this.acceptedHandoff = true;
-      void this.rig.flyTo({ distance: EARTH_RADIUS * 3.1, phi: 1.25 }, 1.8).then(() => {
+      this.rig.setHome({ distance: EARTH_RADIUS * 3.1, phi: 1.25, target: new THREE.Vector3() });
+      void this.rig.flyTo({ distance: EARTH_RADIUS * 3.1, phi: 1.25, target: new THREE.Vector3() }).then(() => {
         this.rig.limits.maxDistance = EARTH_RADIUS * 12;
       });
     }
+    this.rig.anchor = { center: new THREE.Vector3(), radius: EARTH_RADIUS };
+    this.rig.readout = (d) => `${formatDistanceKm((d - EARTH_RADIUS) / UNITS_PER_KM)} up`;
     this.rig.element.addEventListener('pointerdown', () => earthStore.getState().set({ playing: false }));
-
-    // scroll = time travel (the reference's signature interaction), wheel over UI still scrolls
-    const onWheel = (e: WheelEvent) => {
-      if ((e.target as HTMLElement).closest('[data-ui]')) return;
-      e.preventDefault();
+    // Shift+scroll (or a sideways two-finger scroll) travels in time; plain scroll zooms like everywhere else
+    this.rig.onScrub = (notches) => {
       const s = earthStore.getState();
-      const delta = Math.max(-240, Math.min(240, e.deltaY));
-      s.set({ ma: clampMa(s.ma + delta * 3.2), playing: false });
+      s.set({ ma: clampMa(s.ma + notches * 120), playing: false });
     };
-    ctx.stage.addEventListener('wheel', onWheel, { passive: false });
-    this.rig.zoomSpeed = 0; // wheel no longer zooms here; buttons do
-    this.unsub.push(() => ctx.stage.removeEventListener('wheel', onWheel));
 
     this.unsub.push(
       earthStore.subscribe((s, prev) => {
@@ -278,20 +276,14 @@ export class EarthExperience extends Experience {
 
   override exportPose(): Handoff | null {
     if (!this.ready) return null;
-    return handoffFromPose('earth', 'earth', this.rig.pose, 6371, EARTH_RADIUS, this.lastEpochMs);
+    return handoffFromPose('earth', 'earth', this.rig.poseAbout(new THREE.Vector3()), 6371, EARTH_RADIUS, this.lastEpochMs);
   }
 
   flyToEra(lat: number, lon: number): void {
     if (!this.ready) return;
     const phi = ((90 - lat) * Math.PI) / 180;
     const theta = ((lon + 90) * Math.PI) / 180;
-    void this.rig.flyTo({ phi, theta }, 1.6);
-  }
-
-  zoom(factor: number): void {
-    if (!this.ready) return;
-    this.rig.cancelFlight();
-    void this.rig.flyTo({ distance: this.rig.pose.distance * factor }, 0.6);
+    void this.rig.flyTo({ phi, theta, target: new THREE.Vector3() });
   }
 
   override commands(): Command[] {

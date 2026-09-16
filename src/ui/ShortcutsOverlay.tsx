@@ -8,9 +8,15 @@ const ROWS: [string, string][] = [
   ['F', 'Fullscreen'],
   ['⌘K / Ctrl+K', 'Command palette: any world, satellite, era, chapter or setting'],
   ['?', 'This list'],
+  ['+ / − / 0', 'Zoom in, zoom out, reset the view'],
+  ['I', 'Show or hide the facts drawer'],
+  ['Shift + arrows', 'Orbit the camera'],
+  ['Scroll or pinch', 'Zoom toward the cursor'],
+  ['Double-click', 'Zoom in on that spot (or fly to that world)'],
   ['Solar: 1–9, ← →', 'Pick planets, step planets'],
   ['Solar: S / P / T / M / Esc', 'True scale, paths, tour, moons view, back to the Sun'],
   ['Earth: ← → Home End C', 'Eras, formation, today, compare'],
+  ['Earth: Shift + scroll', 'Travel through time'],
   ['Civilization: ← →', 'Previous / next chapter'],
 ];
 

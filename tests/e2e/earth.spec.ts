@@ -41,12 +41,21 @@ test('keyboard and timeline travel through eras', async ({ page }) => {
   await expect.poll(() => page.url()).toContain('ma=650');
 });
 
-test('scrolling the stage travels in time instead of zooming', async ({ page }) => {
+test('plain scroll zooms; Shift+scroll travels in time', async ({ page }) => {
   await page.goto('./earth?ma=0&t=2026-09-14T12:00:00Z&rate=0');
   const canvas = await ready(page);
+  const stage = page.locator('[role="application"]');
+  await expect(stage).toHaveAttribute('data-camera-distance', /./);
+  const before = Number(await stage.getAttribute('data-camera-distance'));
   await page.mouse.move(640, 360);
   await page.mouse.wheel(0, 240);
   await page.mouse.wheel(0, 240);
+  await expect.poll(async () => Number(await stage.getAttribute('data-camera-distance'))).toBeGreaterThan(before * 1.05);
+  expect(Number(await canvas.getAttribute('data-ma'))).toBe(0);
+  await page.keyboard.down('Shift');
+  await page.mouse.wheel(0, 240);
+  await page.mouse.wheel(0, 240);
+  await page.keyboard.up('Shift');
   await expect.poll(async () => Number(await canvas.getAttribute('data-ma'))).toBeGreaterThan(100);
 });
 

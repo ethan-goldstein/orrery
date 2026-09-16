@@ -6,8 +6,7 @@ import { useExperience as useExperienceState } from '@/store/experience';
 import { assetUrl } from '@/engine/Assets';
 import { writeUrl } from '@/app/url-state';
 
-let current: CivilizationExperience | null = null;
-const factory = () => (current = new CivilizationExperience());
+const factory = () => new CivilizationExperience();
 
 export default function CivilizationPage() {
   useEffect(() => {
@@ -37,6 +36,7 @@ export default function CivilizationPage() {
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) return;
       if (e.metaKey || e.ctrlKey) return;
+      if (e.shiftKey && e.key.startsWith('Arrow')) return; // Shift+arrows orbit the camera (global)
       const s = civStore.getState();
       if (e.key === 'ArrowRight') s.set({ chapter: Math.min(s.chapterCount - 1, s.chapter + 1), playing: false });
       if (e.key === 'ArrowLeft') s.set({ chapter: Math.max(0, s.chapter - 1), playing: false });
@@ -54,12 +54,12 @@ export default function CivilizationPage() {
   const c = chapters[chapter];
   return (
     <>
-      <section className="p-5 md:p-8 max-w-md pointer-events-none" aria-live="polite">
+      <section className="plate" aria-live="polite">
         <p className="kicker">{c ? `${String(c.n).padStart(2, '0')} / ${chapters.length} · ${c.when}` : 'A journey through human history'}</p>
-        <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mt-2" key={c?.id ?? 'intro'} data-testid="chapter-title">
+        <h1 key={c?.id ?? 'intro'} data-testid="chapter-title">
           {c ? c.title : 'The story of us.'}
         </h1>
-        <p className="mt-2 text-fog-2 leading-relaxed">{c ? c.story : 'We crossed oceans. We raised cities. We changed the world, and each other. Follow the traces we left behind.'}</p>
+        <p className="dek">{c ? c.story : 'We crossed oceans. We raised cities. We changed the world, and each other. Follow the traces we left behind.'}</p>
         {c && <p className="mt-2 text-xs text-fog-2">Source: {c.source}</p>}
         <div className="mt-5 flex flex-wrap gap-2" data-ui>
           <button className="chip" onClick={() => set({ chapter: Math.max(0, chapter - 1), playing: false })} aria-label="Previous chapter" disabled={chapter === 0}>
@@ -88,19 +88,11 @@ export default function CivilizationPage() {
           ))}
         </ol>
       </section>
-      <aside className="panel fixed right-4 top-20 w-64 p-4 hidden md:block" data-ui>
+      <aside className="card drawer hidden md:block" data-ui>
         <p className="text-3xl font-semibold tabular-nums">300,000</p>
         <p className="kicker">years of becoming</p>
         <p className="text-xs text-fog-2 mt-3">Night lights appear only once electricity does: none before 1882, faint through the twentieth century, today’s full glow at the end. Chapter locations are published site coordinates.</p>
         <p className="text-xs text-fog-2 mt-2">← → chapters · Space plays · H hides the interface</p>
-        <div className="mt-3 flex gap-2">
-          <button className="chip" onClick={() => current?.zoom(0.8)} aria-label="Approach the region">
-            +
-          </button>
-          <button className="chip" onClick={() => current?.zoom(1.25)} aria-label="Pull back">
-            −
-          </button>
-        </div>
       </aside>
     </>
   );

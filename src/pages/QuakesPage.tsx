@@ -5,8 +5,7 @@ import { quakeStore, useQuakes, type QuakePreset } from '@/store/quakes';
 import { useExperience as useExperienceState } from '@/store/experience';
 import { writeUrl } from '@/app/url-state';
 
-let current: QuakesExperience | null = null;
-const factory = () => (current = new QuakesExperience());
+const factory = () => new QuakesExperience();
 
 const PRESETS: { id: QuakePreset; label: string }[] = [
   { id: 'all', label: 'All earthquakes' },
@@ -52,10 +51,10 @@ export default function QuakesPage() {
   if (cleanView) return null;
   return (
     <>
-      <section className="p-5 md:p-8 max-w-md pointer-events-none" aria-live="polite">
+      <section className="plate" aria-live="polite">
         <p className="kicker">The ground is moving</p>
-        <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mt-2">{info ? `M${info.mag.toFixed(1)}` : 'A planet in motion.'}</h1>
-        <p className="mt-2 text-fog-2 leading-relaxed">
+        <h1>{info ? `M${info.mag.toFixed(1)}` : 'A planet in motion.'}</h1>
+        <p className="dek">
           {info
             ? `${info.place}. ${new Date(info.time * 1000).toUTCString().slice(0, 16)}, ${info.depthKm} km deep.`
             : 'Every light is a recorded earthquake of magnitude 6 or more. Together they trace the edges of plates that never stop moving.'}
@@ -80,7 +79,7 @@ export default function QuakesPage() {
           <input type="range" min={range.start} max={range.end} step={86400} value={through} onChange={(e) => set({ throughSeconds: Number(e.target.value), playing: false })} aria-label="Show earthquakes through year" className="w-56" data-testid="quakes-scrub" />
         </label>
       </section>
-      <aside className="panel fixed right-4 top-20 w-64 p-4 hidden md:block" data-ui data-testid="quakes-panel">
+      <aside className="card drawer hidden md:block" data-ui data-testid="quakes-panel">
         <p className="text-3xl font-semibold tabular-nums">{visible.toLocaleString()}</p>
         <p className="kicker">recorded M6+ earthquakes shown</p>
         <p className="text-xs text-fog-2 mt-1">
@@ -101,14 +100,6 @@ export default function QuakesPage() {
           </li>
         </ul>
         <p className="text-xs text-fog-2 mt-3">USGS · M6+ · 2000–today · cumulative records, not a hazard forecast · select a light to inspect</p>
-        <div className="mt-3 flex gap-2">
-          <button className="chip" onClick={() => current?.zoom(0.8)} aria-label="Zoom in">
-            +
-          </button>
-          <button className="chip" onClick={() => current?.zoom(1.25)} aria-label="Zoom out">
-            −
-          </button>
-        </div>
       </aside>
     </>
   );

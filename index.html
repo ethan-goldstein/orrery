@@ -3,27 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#04060b" />
+    <meta name="theme-color" content="#070a12" />
     <meta name="description" content="Orrery: an atlas of worlds. Earth, the Moon and the Solar System rendered from real ephemerides." />
     <title>Orrery</title>
     <style>
-      html,body{height:100%;margin:0;background:#04060b;color:#c9d3e3;font-family:Inter,ui-sans-serif,system-ui,sans-serif}
-      .boot{position:fixed;inset:0}.boot-bar{padding:16px 20px}.wordmark{font-weight:600;font-size:1.25rem;letter-spacing:-.02em}.wordmark::after{content:".";color:#ffd27a}
-      .boot-hero{padding:16px 24px;max-width:28rem}.kicker{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:#8a96ab}
-      .boot-hero h1{font-size:3rem;font-weight:600;letter-spacing:-.02em;margin:.5rem 0 0;line-height:1.05}.boot-sub{color:#8a96ab;margin-top:1rem}
+      html,body{height:100%;margin:0;background:#070a12;color:#efe6d3;font-family:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif}
+      .boot{position:fixed;inset:0;display:grid;grid-template-columns:56px 1fr}
+      .boot-rail{border-right:1px solid rgba(239,230,211,.14);display:flex;justify-content:center;padding-top:14px;color:#c9a961}
+      .boot-hero{padding:22px 28px;max-width:30rem}
+      .kicker{font:500 .66rem ui-monospace,"IBM Plex Mono",Menlo,monospace;letter-spacing:.18em;text-transform:uppercase;color:#b7ae9c;padding-top:10px;border-top:1px solid rgba(239,230,211,.14);display:inline-block;min-width:12rem}
+      .boot-hero h1{font-family:Georgia,"Times New Roman",serif;font-size:2.35rem;font-weight:400;letter-spacing:-.005em;margin:.6rem 0 0;line-height:1.02}
+      .boot-sub{color:#b7ae9c;margin-top:.7rem;font-size:.95rem}
+      .boot-bar{position:fixed;left:56px;right:0;bottom:14px;display:flex;justify-content:center}
+      .boot-bar span{display:block;width:min(560px,80vw);height:64px;border:1px solid rgba(239,230,211,.14);border-radius:4px;background:rgba(13,18,32,.9)}
     </style>
     <meta property="og:title" content="Orrery" />
     <meta property="og:description" content="An atlas of worlds. Earth, the Moon and the Solar System rendered from real ephemerides." />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://ethan-goldstein.github.io/orrery/icons/og.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='4' fill='%23ffd27a'/%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%237fa8ff' stroke-width='1.5'/%3E%3Ccircle cx='27' cy='12' r='2' fill='%237fa8ff'/%3E%3C/svg%3E" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='4' fill='%23c9a961'/%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%23efe6d3' stroke-width='1.5'/%3E%3Ccircle cx='27' cy='12' r='2' fill='%23c9a961'/%3E%3C/svg%3E" />
   </head>
   <body>
     <div id="app">
       <div class="boot" aria-hidden="true">
-        <div class="boot-bar"><span class="wordmark">orrery</span></div>
+        <div class="boot-rail"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="6.5"/><ellipse cx="12" cy="12" rx="10" ry="4.2" transform="rotate(-20 12 12)"/><circle cx="19.2" cy="8.4" r="1.4" fill="currentColor" stroke="none"/></svg></div>
         <div class="boot-hero"><p class="kicker">An atlas of worlds</p><h1>Everything, in motion.</h1><p class="boot-sub">Preparing your view…</p></div>
+        <div class="boot-bar"><span></span></div>
       </div>
     </div>
     <noscript>

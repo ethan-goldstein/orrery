@@ -22,7 +22,8 @@ import { assetUrl } from '@/engine/Assets';
 import { galileanPositionKm, isGalilean, keplerMoonElements, keplerMoonPositionKm, loadKeplerMoons, moonPhaseDeg, moonPositionKm, planetPositionKm, planetStateKm, type Km3 } from '@/astro/ephemeris';
 import { bodyOrientation, hasIauOrientation } from '@/astro/rotation';
 import { elementsFromState, samplePath } from '@/astro/kepler';
-import { AU_KM, blendLog, blendPosition, illustratedDistanceUnits, quintic, UNITS_PER_KM } from '@/astro/scale';
+import { AU_KM, blendLog, blendPosition, illustratedDistanceUnits, UNITS_PER_KM } from '@/astro/scale';
+import { easeInOutCubic, formatDistanceKm } from '@/engine/motion';
 import { solarStore, type SolarView } from '@/store/solar';
 import { settingsStore } from '@/store/settings';
 import { clockStore } from '@/store/clock';
@@ -62,6 +63,7 @@ export class SolarExperience extends Experience {
   private rig!: CameraRig;
   private labels!: Labels;
   private picker!: Picker;
+  private lastFocusChangeMs = 0;
   private ready = false;
   private nodes = new Map<string, Node>();
   private sunLight = new THREE.PointLight(0xfff4e0, 3.2, 0, 0);
@@ -160,6 +162,27 @@ export class SolarExperience extends Experience {
     this.picker.onPick = (id) => {
       if (id) solarStore.getState().setFocus(id);
     };
+    this.rig.onReset = () => {
+      const st = solarStore.getState();
+      this.applyView(st.focus, st.view, false);
+    };
+    this.rig.readout = (d) => {
+      const st = solarStore.getState();
+      const f = this.nodes.get(this.originId);
+      if (!f) return null;
+      if (this.rig.anchor) {
+        const alt = d - f.displayRadius;
+        return this.scaleMix > 0.5 ? `${formatDistanceKm(alt / UNITS_PER_KM)} up` : `${(d / f.displayRadius).toFixed(1)} radii · illustrated`;
+      }
+      return this.scaleMix > 0.5 ? `${formatDistanceKm(d / UNITS_PER_KM)} from the ${f.info.name}` : `${st.view === 'compare' ? 'line-up' : 'illustrated scale'}`;
+    };
+    this.rig.onDoubleTap = (x, y) => {
+      if (performance.now() - this.lastFocusChangeMs < 600) return;
+      const st = solarStore.getState();
+      const id = this.picker.pick(x, y);
+      if (id && id !== st.focus) st.setFocus(id, 'planet');
+      else if (this.rig.anchor) this.rig.zoomBy(0.5, { x, y });
+    };
 
     // a camera handed over from another world: arrive at that world in planet view
     const handoff = ctx.handoff && BODY_BY_ID.has(ctx.handoff.bodyId) ? ctx.handoff : null;
@@ -191,7 +214,7 @@ export class SolarExperience extends Experience {
       const pose = poseFromHandoff(handoff, node.info.radiusKm, node.displayRadius);
       this.rig.importPose({ ...pose, target: new THREE.Vector3() });
       this.acceptedHandoff = true;
-      void this.rig.flyTo({ distance: this.fitDistance(node, 'planet'), phi: 1.35 }, 2.2);
+      void this.rig.flyTo({ distance: this.fitDistance(node, 'planet'), phi: 1.35 });
     }
 
     this.ready = true;
@@ -346,6 +369,17 @@ export class SolarExperience extends Experience {
     this.scaleTo = to;
     this.scaleT = 0;
     this.scaleStart = performance.now();
+    // ease the camera to where the view fits once the morph completes; while a flight is
+    // running, update() retargets it each frame instead
+    if (!this.rig.flying) {
+      const ms = clockStore.getState().epochMs;
+      const view = solarStore.getState().view;
+      this.updatePositions(ms, to);
+      const anchor = this.nodes.get(this.originId)!;
+      const distance = this.fitDistance(anchor, view);
+      this.updatePositions(ms, this.scaleMix);
+      this.rig.setGoal({ distance }, SolarExperience.SCALE_SECONDS * 0.6);
+    }
   }
 
   private onFocusOrView(focus: string, view: SolarView, prevView: SolarView): void {
@@ -355,6 +389,7 @@ export class SolarExperience extends Experience {
       if ((view === 'moons' || view === 'planet') && prevView !== view && clock.rate > 86_400) clock.setRate(view === 'moons' ? 3600 : 60);
       if ((view === 'system' || view === 'inner') && prevView !== view && clock.rate < 3600) clock.setRate(259_200);
     }
+    this.lastFocusChangeMs = performance.now();
     this.applyView(focus, view, false);
   }
 
@@ -398,7 +433,7 @@ export class SolarExperience extends Experience {
     const prev = this.nodes.get(this.originId)!;
     const delta = new THREE.Vector3(anchor.display[0] - prev.display[0], anchor.display[1] - prev.display[1], anchor.display[2] - prev.display[2]);
     this.originId = anchorId;
-    this.rig.pose.target.sub(delta);
+    this.rig.shiftTarget(delta.negate());
     this.updatePositions(clock.epochMs, this.scaleMix);
     const distance = this.fitDistance(anchor, view);
     const phi = view === 'planet' ? 1.35 : view === 'moons' ? 1.15 : view === 'compare' ? 1.5 : 1.02;
@@ -413,7 +448,7 @@ export class SolarExperience extends Experience {
     if (immediate) {
       this.rig.importPose({ theta, phi, distance, target: new THREE.Vector3() });
     } else {
-      void this.rig.flyTo({ target: new THREE.Vector3(), distance, phi, theta }, view === 'planet' ? 1.8 : 2.2);
+      void this.rig.flyTo({ target: new THREE.Vector3(), distance, phi, theta });
     }
     this.ctx.renderer.canvas.dataset.focus = focus;
     this.ctx.renderer.canvas.dataset.view = view;
@@ -718,17 +753,22 @@ export class SolarExperience extends Experience {
     // scale animation
     if (this.scaleT < 1) {
       this.scaleT = Math.min(1, (performance.now() - this.scaleStart) / (SolarExperience.SCALE_SECONDS * 1000));
-      this.scaleMix = this.scaleFrom + (this.scaleTo - this.scaleFrom) * quintic(this.scaleT);
+      this.scaleMix = this.scaleFrom + (this.scaleTo - this.scaleFrom) * easeInOutCubic(this.scaleT);
       if (Math.abs(state.scaleMix - this.scaleMix) > 0.01 || this.scaleT === 1) solarStore.setState({ scaleMix: this.scaleMix });
     }
     this.updatePositions(ms, this.scaleMix);
-    if (this.rig.flying) {
+    {
       const anchor = this.nodes.get(this.originId)!;
       this.rig.limits.minDistance = anchor.displayRadius * 1.08;
-      this.rig.retarget(new THREE.Vector3(), this.fitDistance(anchor, state.view));
-    } else if (this.scaleT < 1) {
-      const anchor = this.nodes.get(this.originId)!;
-      this.rig.pose.distance = this.fitDistance(anchor, state.view);
+      const close = (state.view === 'planet' || state.view === 'moons') && anchor.info.kind !== 'craft';
+      if (close) {
+        if (!this.rig.anchor) this.rig.anchor = { center: anchor.scene, radius: anchor.displayRadius };
+        else {
+          this.rig.anchor.center = anchor.scene;
+          this.rig.anchor.radius = anchor.displayRadius;
+        }
+      } else this.rig.anchor = null;
+      if (this.rig.flying) this.rig.retarget(new THREE.Vector3(), this.fitDistance(anchor, state.view));
     }
     this.updateOrientation(ms);
     // Earth clouds drift
@@ -793,7 +833,7 @@ export class SolarExperience extends Experience {
         this.tourIndex = (this.tourIndex + 1) % TOUR_ORDER.length;
         this.tourStep();
       }
-      if (!this.rig.flying) this.rig.pose.theta += dt * 0.05;
+      if (!this.rig.flying) this.rig.goal.theta += dt * 0.05;
     }
     // telemetry 5x/s
     this.telemetryTimer += dt;
@@ -830,7 +870,7 @@ export class SolarExperience extends Experience {
     if (state.focus === 'sun' || isCraft(state.focus) || this.originId !== state.focus || !this.rig) return null;
     const node = this.nodes.get(state.focus);
     if (!node) return null;
-    return handoffFromPose('solar', state.focus, this.rig.pose, node.info.radiusKm, node.displayRadius, this.lastFrameMs || clockStore.getState().epochMs);
+    return handoffFromPose('solar', state.focus, this.rig.poseAbout(node.scene), node.info.radiusKm, node.displayRadius, this.lastFrameMs || clockStore.getState().epochMs);
   }
 
   override commands(): Command[] {

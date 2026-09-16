@@ -34,7 +34,7 @@ export default defineConfig({
       },
       workbox: {
         // app shell is precached; heavy textures and datasets are cached on first use
-        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest,woff2}'],
         globIgnores: ['**/textures/**', '**/data/**', '**/icons/**'],
         navigateFallback: `${base}index.html`,
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,

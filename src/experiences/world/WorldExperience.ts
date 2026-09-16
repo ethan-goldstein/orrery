@@ -8,6 +8,8 @@ import { assetUrl, loadTexture } from '@/engine/Assets';
 import { handoffFromPose, poseFromHandoff, type Handoff } from '@/engine/Journey';
 import type { ClockState } from '@/astro/time';
 import type { WorldState, WorldStore } from '@/store/world';
+import { formatDistanceKm } from '@/engine/motion';
+import { UNITS_PER_KM } from '@/astro/scale';
 
 export interface Site {
   id: string;
@@ -106,6 +108,8 @@ export abstract class WorldExperience extends Experience {
     const first = this.config.presets[this.store.getState().preset] ?? Object.values(this.config.presets)[0]!;
     this.rig = new CameraRig(this.camera, ctx.stage, { distance: first.distance, phi: 1.48, theta: Math.PI / 2 });
     this.rig.limits = { minDistance: R * 1.08, maxDistance: this.config.maxDistance, minPolar: 0.05, maxPolar: Math.PI - 0.05 };
+    this.rig.anchor = { center: new THREE.Vector3(), radius: R };
+    this.rig.readout = (d) => `${formatDistanceKm((d - R) / UNITS_PER_KM)} up`;
     this.rig.element.addEventListener('pointerdown', () => this.store.getState().set({ tour: false }));
     this.labels = new Labels(ctx.stage);
     this.labels.onSelect = (id) => this.store.getState().set({ site: id, tour: false });
@@ -129,7 +133,9 @@ export abstract class WorldExperience extends Experience {
       this.rig.importPose({ ...poseFromHandoff(h, this.config.radiusKm, R, this.orientation(h.epochMs).frame), target: new THREE.Vector3() });
       this.acceptedHandoff = true;
       const p = this.config.presets[this.store.getState().preset]!;
-      void this.rig.flyTo({ phi: ((90 - p.lat) * Math.PI) / 180, theta: ((p.lon + 90) * Math.PI) / 180, distance: p.distance }, 2.0).then(() => {
+      const dest = { phi: ((90 - p.lat) * Math.PI) / 180, theta: ((p.lon + 90) * Math.PI) / 180, distance: p.distance, target: new THREE.Vector3() };
+      this.rig.setHome(dest);
+      void this.rig.flyTo(dest).then(() => {
         this.rig.limits.maxDistance = this.config.maxDistance;
       });
     } else if (h) {
@@ -203,7 +209,7 @@ export abstract class WorldExperience extends Experience {
     const st = this.store.getState();
     st.set({ sunlight: p.light === undefined ? null : this.lightFor(p.lon + p.light) });
     if (immediate) this.rig.importPose({ phi, theta, distance: p.distance, target: new THREE.Vector3() });
-    else void this.rig.flyTo({ phi, theta, distance: p.distance }, 1.8);
+    else void this.rig.flyTo({ phi, theta, distance: p.distance, target: new THREE.Vector3() });
   }
 
   protected flySite(id: string): void {
@@ -212,7 +218,7 @@ export abstract class WorldExperience extends Experience {
     const phi = ((90 - s.lat) * Math.PI) / 180;
     const theta = ((s.lon + 90) * Math.PI) / 180;
     this.store.getState().set({ sunlight: this.lightFor(s.lon) });
-    void this.rig.flyTo({ phi, theta, distance: this.config.siteDistance }, 1.8);
+    void this.rig.flyTo({ phi, theta, distance: this.config.siteDistance, target: new THREE.Vector3() });
   }
 
   private tourStep(): void {
@@ -265,13 +271,7 @@ export abstract class WorldExperience extends Experience {
 
   override exportPose(): Handoff | null {
     if (!this.ready) return null;
-    return handoffFromPose(this.config.id, this.config.id, this.rig.pose, this.config.radiusKm, this.config.radiusUnits, this.lastEpochMs, this.orientation(this.lastEpochMs).frame);
-  }
-
-  zoom(factor: number): void {
-    if (!this.ready) return;
-    this.rig.cancelFlight();
-    void this.rig.flyTo({ distance: this.rig.pose.distance * factor }, 0.6);
+    return handoffFromPose(this.config.id, this.config.id, this.rig.poseAbout(new THREE.Vector3()), this.config.radiusKm, this.config.radiusUnits, this.lastEpochMs, this.orientation(this.lastEpochMs).frame);
   }
 
   override commands(): Command[] {

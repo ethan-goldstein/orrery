@@ -5,7 +5,6 @@ import { solarStore, useSolar, type SolarView } from '@/store/solar';
 import { BODIES, BODY_BY_ID, bodyInfo, moonsOf, PLANETS, type BodyInfo } from '@/astro/bodies';
 import { anyBodyInfo, CRAFT_BY_ID, isCraft } from '@/astro/spacecraft';
 import { AU_KM } from '@/astro/scale';
-import { assetUrl, loadManifest, type Manifest } from '@/engine/Assets';
 import { useExperience as useExperienceState } from '@/store/experience';
 import { writeUrl } from '@/app/url-state';
 import { upcomingEvents, type AstroEvent } from '@/astro/events';
@@ -65,6 +64,7 @@ export default function SolarPage() {
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) return;
       if (e.metaKey || e.ctrlKey) return;
+      if (e.shiftKey && e.key.startsWith('Arrow')) return; // Shift+arrows orbit the camera (global)
       const s = solarStore.getState();
       const order = PLANETS.map((p) => p.id);
       const cur = anyBodyInfo(s.focus, BODY_BY_ID);
@@ -118,12 +118,12 @@ export default function SolarPage() {
   if (cleanView) return null;
   return (
     <>
-      <section className="p-5 md:p-8 max-w-md pointer-events-none" aria-live="polite">
+      <section className="plate" aria-live="polite">
         <p className="kicker">{kicker}</p>
-        <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mt-2 transition-opacity" key={headline}>
+        <h1 key={headline}>
           {headline}
         </h1>
-        <p className="mt-2 text-fog-2">{view === 'compare' ? 'Every world at its true radius, in a row. The Sun on the left is 109 Earths wide; drag to see how little of it fits.' : view === 'system' ? 'Eight worlds. One star. Real positions for any date you choose.' : info.tagline}</p>
+        <p className="dek">{view === 'compare' ? 'Every world at its true radius, in a row. The Sun on the left is 109 Earths wide; drag to see how little of it fits.' : view === 'system' ? 'Eight worlds. One star. Real positions for any date you choose.' : info.tagline}</p>
         <div className="mt-5 flex flex-wrap gap-2" data-ui>
           {VIEWS.map((v) => (
             <button key={v.id} className="chip" aria-pressed={view === v.id} onClick={() => set.setView(v.id)} disabled={v.id === 'moons' && moons.length === 0} style={v.id === 'moons' && moons.length === 0 ? { opacity: 0.4 } : undefined}>
@@ -155,10 +155,9 @@ export default function SolarPage() {
             </select>
           )}
         </div>
+        <Moments />
       </section>
-      <Moments />
       <InfoPanel id={focus} />
-      <PlanetStrip />
     </>
   );
 }
@@ -182,7 +181,7 @@ function Moments() {
     solarStore.getState().setFocus(e.focus, 'planet');
   };
   return (
-    <div className="fixed left-5 md:left-8 bottom-44 md:bottom-40 flex flex-wrap gap-2 max-w-md" data-ui data-testid="moments">
+    <div className="plate-row" data-ui data-testid="moments">
       <span className="kicker self-center">Moments</span>
       {events.map((e) => (
         <button key={e.id} className="chip" onClick={() => go(e)} title={e.detail} data-event={e.id}>
@@ -205,7 +204,7 @@ function InfoPanel({ id }: { id: string }) {
     const years = craft.launch ? (Date.now() - Date.parse(craft.launch)) / (365.25 * 86_400_000) : null;
     const lightMin = t.earthDistanceKm / 299_792.458 / 60;
     return (
-      <aside className="panel fixed right-4 top-20 w-72 max-w-[calc(100vw-2rem)] p-4 text-sm hidden md:block" data-ui aria-label={`${craft.name} facts`} data-testid="info-panel">
+      <aside className="card drawer hidden md:block" data-ui aria-label={`${craft.name} facts`} data-testid="info-panel">
         <p className="kicker">{craft.kind === 'probe' ? `Spacecraft · ${craft.agency}` : craft.kind}</p>
         <h2 className="text-2xl font-semibold mt-1">{craft.name}</h2>
         <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
@@ -227,7 +226,7 @@ function InfoPanel({ id }: { id: string }) {
   }
   const lightSeconds = t.sunDistanceKm / 299_792.458;
   return (
-    <aside className="panel fixed right-4 top-20 w-72 max-w-[calc(100vw-2rem)] p-4 text-sm hidden md:block" data-ui aria-label={`${info.name} facts`} data-testid="info-panel">
+    <aside className="card drawer hidden md:block" data-ui aria-label={`${info.name} facts`} data-testid="info-panel">
       <p className="kicker">{info.kind === 'moon' ? `Moon of ${bodyInfo(info.parent!).name}` : info.kind}</p>
       <h2 className="text-2xl font-semibold mt-1">{info.name}</h2>
       <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
@@ -255,7 +254,7 @@ function InfoPanel({ id }: { id: string }) {
 function Stat({ k, v }: { k: string; v: string }) {
   return (
     <div>
-      <dt className="kicker" style={{ fontSize: '0.58rem' }}>
+      <dt className="kicker">
         {k}
       </dt>
       <dd className="font-mono tabular-nums mt-0.5">{v}</dd>
@@ -273,37 +272,4 @@ function phaseName(deg: number): string {
   if (d < 247.5) return 'Waning gibbous';
   if (d < 292.5) return 'Last quarter';
   return 'Waning crescent';
-}
-
-function PlanetStrip() {
-  const focus = useSolar((s) => s.focus);
-  const [manifest, setManifest] = useState<Manifest | null>(null);
-  useEffect(() => {
-    loadManifest().then(setManifest).catch(() => undefined);
-  }, []);
-  const thumb = (textureId: string | null) => {
-    const e = manifest?.textures.find((t) => t.id === textureId);
-    const f = e?.files['1k']?.webp;
-    return f ? `url(${assetUrl(f)})` : undefined;
-  };
-  const items = [bodyInfo('sun'), ...PLANETS, bodyInfo('pluto')];
-  return (
-    <nav className="fixed bottom-20 left-4 right-4 flex justify-center pointer-events-none" aria-label="Worlds">
-      <ul className="flex gap-1 overflow-x-auto panel px-2 py-1.5 pointer-events-auto max-w-full" data-ui data-testid="planet-strip">
-        {items.map((b) => (
-          <li key={b.id}>
-            <button
-              className="flex flex-col items-center gap-1 px-2 py-1 rounded-lg hover:bg-fog/10"
-              aria-pressed={focus === b.id}
-              onClick={() => solarStore.getState().setFocus(b.id, b.id === 'sun' ? 'planet' : 'planet')}
-              data-body={b.id}
-            >
-              <span className="picker-thumb" style={{ backgroundImage: thumb(b.texture), backgroundColor: b.color, boxShadow: focus === b.id ? '0 0 0 2px var(--color-glow), inset -6px -4px 10px rgba(0,0,0,0.65)' : undefined }} aria-hidden />
-              <span className={`text-[11px] ${focus === b.id ? 'text-glow' : 'text-fog-2'}`}>{b.name}</span>
-            </button>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  );
 }

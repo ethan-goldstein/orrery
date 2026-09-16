@@ -67,12 +67,12 @@ export default function OrbitPage() {
   const g = GROUPS.find((x) => x.id === group)!;
   return (
     <>
-      <section className="p-5 md:p-8 max-w-md pointer-events-none" aria-live="polite">
+      <section className="plate" aria-live="polite">
         <p className="kicker">{info ? `${info.type} · ${info.owner || 'unknown owner'} · launched ${info.launch || '?'}` : 'A world in orbit'}</p>
-        <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mt-2" key={info?.id ?? group}>
+        <h1 key={info?.id ?? group}>
           {info ? info.name : 'Thousands of spacecraft. One shared sky.'}
         </h1>
-        <p className="mt-2 text-fog-2 leading-relaxed">
+        <p className="dek">
           {info ? `${Math.round(info.altKm).toLocaleString()} km up, ${info.speedKmS.toFixed(2)} km/s, one orbit every ${info.periodMin.toFixed(0)} minutes, inclined ${info.incl.toFixed(1)}°.` : g.blurb}
         </p>
         <div className="mt-5 flex flex-wrap gap-2" data-ui>
@@ -126,7 +126,7 @@ export default function OrbitPage() {
           </button>
         </label>
       </section>
-      <aside className="panel fixed right-4 top-20 w-64 p-4 hidden md:block" data-ui data-testid="orbit-panel">
+      <aside className="card drawer hidden md:block" data-ui data-testid="orbit-panel">
         <p className="text-3xl font-semibold tabular-nums">{visible.toLocaleString()}</p>
         <p className="kicker">plotted objects</p>
         <p className="text-xs text-fog-2 mt-1">
@@ -147,14 +147,6 @@ export default function OrbitPage() {
           </li>
         </ul>
         <p className="text-xs text-fog-2 mt-3">Positions are propagated live from a dated element set; they drift by kilometres per day. Drag to rotate, select any point.</p>
-        <div className="mt-3 flex gap-2">
-          <button className="chip" onClick={() => current?.zoom(0.8)} aria-label="Zoom in">
-            +
-          </button>
-          <button className="chip" onClick={() => current?.zoom(1.25)} aria-label="Zoom out">
-            −
-          </button>
-        </div>
       </aside>
     </>
   );

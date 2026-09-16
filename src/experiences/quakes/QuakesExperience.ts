@@ -3,6 +3,8 @@ import { Experience, type Command, type ExperienceContext } from '@/engine/Exper
 import { Starfield } from '@/engine/Starfield';
 import { applyLogDepth } from '@/engine/materials/logDepth';
 import { CameraRig } from '@/engine/CameraRig';
+import { formatDistanceKm } from '@/engine/motion';
+import { UNITS_PER_KM } from '@/astro/scale';
 import { assetUrl, loadTexture } from '@/engine/Assets';
 import type { ClockState } from '@/astro/time';
 import { quakeStore, type QuakePreset } from '@/store/quakes';
@@ -56,6 +58,8 @@ export class QuakesExperience extends Experience {
     this.scene.add(this.selectedMarker);
     this.rig = new CameraRig(this.camera, ctx.stage, { distance: R * 3.4, phi: 1.3, theta: 0.4 });
     this.rig.limits = { minDistance: R * 1.15, maxDistance: R * 10, minPolar: 0.05, maxPolar: Math.PI - 0.05 };
+    this.rig.anchor = { center: new THREE.Vector3(), radius: R };
+    this.rig.readout = (d) => `${formatDistanceKm((d - R) / UNITS_PER_KM)} up`;
     this.unsub.push(
       quakeStore.subscribe((s, prev) => {
         if (s.preset !== prev.preset) this.applyPreset(s.preset);
@@ -156,7 +160,7 @@ export class QuakesExperience extends Experience {
     const phi = ((90 - p.lat) * Math.PI) / 180;
     const theta = ((p.lon + 90) * Math.PI) / 180;
     if (immediate) this.rig.importPose({ phi, theta, distance: p.distance, target: new THREE.Vector3() });
-    else void this.rig.flyTo({ phi, theta, distance: p.distance }, 1.8);
+    else void this.rig.flyTo({ phi, theta, distance: p.distance, target: new THREE.Vector3() });
     if (preset === 'japan2011') quakeStore.getState().set({ throughSeconds: 1_302_000_000 });
     else if (quakeStore.getState().throughSeconds < quakeStore.getState().range.end - 86400 && !quakeStore.getState().playing && preset !== 'all') quakeStore.getState().set({ throughSeconds: quakeStore.getState().range.end });
   }
@@ -176,7 +180,7 @@ export class QuakesExperience extends Experience {
     quakeStore.getState().set({ selectedInfo: { id: r[6], place: r[5], mag: r[4], depthKm: r[3], time: r[0], lat: r[1], lon: r[2] } });
     const phi = ((90 - r[1]) * Math.PI) / 180;
     const theta = ((r[2] + 90) * Math.PI) / 180;
-    void this.rig.flyTo({ phi, theta, distance: Math.min(this.rig.pose.distance, R * 2.2) }, 1.4);
+    void this.rig.flyTo({ phi, theta, distance: Math.min(this.rig.pose.distance, R * 2.2), target: new THREE.Vector3() });
   }
 
   private pick(clientX: number, clientY: number): void {
@@ -233,12 +237,6 @@ export class QuakesExperience extends Experience {
     const c = this.ctx.renderer.canvas;
     c.dataset.preset = s.preset;
     c.dataset.visible = String(s.visibleCount);
-  }
-
-  zoom(factor: number): void {
-    if (!this.ready) return;
-    this.rig.cancelFlight();
-    void this.rig.flyTo({ distance: this.rig.pose.distance * factor }, 0.6);
   }
 
   override commands(): Command[] {

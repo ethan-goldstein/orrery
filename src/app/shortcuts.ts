@@ -1,5 +1,7 @@
 import { clockStore } from '@/store/clock';
 import { experienceStore } from '@/store/experience';
+import { cameraStore } from '@/store/camera';
+import { shellStore } from '@/store/shell';
 
 const isTyping = (e: KeyboardEvent) => {
   const t = e.target as HTMLElement | null;
@@ -10,7 +12,28 @@ const isTyping = (e: KeyboardEvent) => {
 export function installGlobalShortcuts(): () => void {
   const onKey = (e: KeyboardEvent) => {
     if (isTyping(e) || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.shiftKey && e.key.startsWith('Arrow')) {
+      e.preventDefault();
+      const step = 0.15;
+      cameraStore.getState().nudge(e.key === 'ArrowLeft' ? step : e.key === 'ArrowRight' ? -step : 0, e.key === 'ArrowUp' ? -step * 0.7 : e.key === 'ArrowDown' ? step * 0.7 : 0);
+      return;
+    }
     switch (e.key) {
+      case '+':
+      case '=':
+        cameraStore.getState().zoomIn();
+        break;
+      case '-':
+      case '_':
+        cameraStore.getState().zoomOut();
+        break;
+      case '0':
+        cameraStore.getState().reset();
+        break;
+      case 'i':
+      case 'I':
+        shellStore.getState().toggleDrawer();
+        break;
       case ' ':
         e.preventDefault();
         clockStore.getState().toggle();

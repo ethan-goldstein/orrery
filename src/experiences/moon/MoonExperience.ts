@@ -74,7 +74,9 @@ export class MoonExperience extends WorldExperience {
     this.acceptedHandoff = true;
     ctx.renderer.canvas.dataset.arrival = 'flying';
     const p = this.config.presets.near!;
-    void this.rig.flyTo({ phi: ((90 - p.lat) * Math.PI) / 180, theta: ((p.lon + 90) * Math.PI) / 180, distance: p.distance }, 1.8).then(() => {
+    const dest = { phi: ((90 - p.lat) * Math.PI) / 180, theta: ((p.lon + 90) * Math.PI) / 180, distance: p.distance, target: new THREE.Vector3() };
+    this.rig.setHome(dest);
+    void this.rig.flyTo(dest, 1.8).then(() => {
       this.rig.limits.maxDistance = this.config.maxDistance;
       ctx.renderer.canvas.dataset.arrival = 'done';
     });

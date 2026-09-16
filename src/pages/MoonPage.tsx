@@ -9,8 +9,7 @@ import { useClock } from '@/store/clock';
 import { moonPhaseDeg } from '@/astro/ephemeris';
 import { moonPositionKm } from '@/astro/ephemeris';
 
-let current: MoonExperience | null = null;
-const factory = () => (current = new MoonExperience());
+const factory = () => new MoonExperience();
 
 const PRESETS: { id: MoonPreset; label: string }[] = [
   { id: 'near', label: 'Near side' },
@@ -60,12 +59,12 @@ export default function MoonPage() {
   if (cleanView) return null;
   return (
     <>
-      <section className="p-5 md:p-8 max-w-md pointer-events-none" aria-live="polite">
+      <section className="plate" aria-live="polite">
         <p className="kicker">{active ? `${active.agency} · ${active.date}` : 'Our celestial companion'}</p>
-        <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mt-2" key={active?.id ?? preset}>
+        <h1 key={active?.id ?? preset}>
           {active ? active.name : preset === 'far' ? 'The far side.' : preset === 'south' ? 'Toward the pole.' : preset === 'terminator' ? 'Light and shadow.' : 'Another world, within reach.'}
         </h1>
-        <p className="mt-2 text-fog-2 leading-relaxed">
+        <p className="dek">
           {active ? active.blurb : 'A landscape written by impacts, a record of the early Solar System preserved in stone. Lit exactly as it is right now.'}
         </p>
         {active?.crew && <p className="mt-2 text-xs text-fog-2">Crew on the surface: {active.crew.join(', ')} · {active.region}</p>}
@@ -97,38 +96,30 @@ export default function MoonPage() {
           </button>
         </label>
       </section>
-      <aside className="panel fixed right-4 top-20 w-64 p-4 hidden md:block" data-ui data-testid="moon-panel">
+      <aside className="card drawer hidden md:block" data-ui data-testid="moon-panel">
         <p className="kicker">Right now</p>
         <p className="text-3xl font-semibold mt-1 tabular-nums">{Math.round(distanceKm).toLocaleString()} km</p>
         <p className="text-xs text-fog-2">from Earth, centre to centre</p>
         <p className="kicker mt-2" data-testid="moon-lighting">{sunlight === null ? 'Real illumination' : 'Illustrative lighting'}</p>
         <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
           <div>
-            <dt className="kicker" style={{ fontSize: '0.58rem' }}>Phase</dt>
+            <dt className="kicker">Phase</dt>
             <dd className="mt-0.5">{illum}% lit</dd>
           </div>
           <div>
-            <dt className="kicker" style={{ fontSize: '0.58rem' }}>Radius</dt>
+            <dt className="kicker">Radius</dt>
             <dd className="mt-0.5">1,737.4 km</dd>
           </div>
           <div>
-            <dt className="kicker" style={{ fontSize: '0.58rem' }}>Gravity</dt>
+            <dt className="kicker">Gravity</dt>
             <dd className="mt-0.5">1.62 m/s²</dd>
           </div>
           <div>
-            <dt className="kicker" style={{ fontSize: '0.58rem' }}>Atmosphere</dt>
+            <dt className="kicker">Atmosphere</dt>
             <dd className="mt-0.5">None</dd>
           </div>
         </dl>
         <p className="text-xs text-fog-2 mt-3">NASA LROC colour + LOLA relief · Earth distance compressed for composition · Drag to orbit</p>
-        <div className="mt-3 flex gap-2">
-          <button className="chip" onClick={() => current?.zoom(0.8)} aria-label="Zoom in">
-            +
-          </button>
-          <button className="chip" onClick={() => current?.zoom(1.25)} aria-label="Zoom out">
-            −
-          </button>
-        </div>
       </aside>
     </>
   );

@@ -1,13 +1,14 @@
 import { lazy, Suspense, useEffect, type ComponentType, type LazyExoticComponent } from 'react';
 import { Route, Router, Switch } from 'wouter';
 import { EngineProvider } from './EngineContext';
-import { Header } from '@/ui/shell/Header';
-import { TimeBar } from '@/ui/shell/TimeBar';
+import { Rail } from '@/ui/shell/Rail';
+import { InstrumentBar } from '@/ui/shell/InstrumentBar';
 import { StatusLine } from '@/ui/shell/StatusLine';
 import { ROUTES } from './route-list';
 import { parseSharedState } from './url-state';
 import { clockStore } from '@/store/clock';
 import { settingsStore } from '@/store/settings';
+import { useShell } from '@/store/shell';
 import { CommandPalette } from '@/ui/CommandPalette';
 import { ShortcutsOverlay } from '@/ui/ShortcutsOverlay';
 import { MobileSheet } from '@/ui/shell/MobileSheet';
@@ -29,6 +30,7 @@ const pages: Record<string, LazyExoticComponent<ComponentType>> = {
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 export function App() {
+  const drawer = useShell((s) => s.drawerOpen);
   useEffect(() => {
     const s = parseSharedState(window.location.search);
     const clock = clockStore.getState();
@@ -43,28 +45,28 @@ export function App() {
   return (
     <Router base={base}>
       <EngineProvider>
-        <div className="chrome">
-          <Header />
-          <Suspense fallback={<div className="p-6 kicker">Loading…</div>}>
+        <div className="chrome" data-drawer={drawer ? 'true' : 'false'}>
+          <Rail />
+          <Suspense fallback={<div className="page p-6 kicker">Loading…</div>}>
             <MobileSheet>
               <Switch>
-              {ROUTES.map((r) => {
-                const Page = pages[r.id]!;
-                return (
-                  <Route key={r.id} path={r.path}>
-                    <Page />
-                  </Route>
-                );
-              })}
+                {ROUTES.map((r) => {
+                  const Page = pages[r.id]!;
+                  return (
+                    <Route key={r.id} path={r.path}>
+                      <Page />
+                    </Route>
+                  );
+                })}
                 <Route>
                   <NotFound />
                 </Route>
               </Switch>
             </MobileSheet>
           </Suspense>
-          <div className="flex flex-col gap-2 p-4">
+          <div className="chrome-foot">
             <StatusLine />
-            <TimeBar />
+            <InstrumentBar />
           </div>
         </div>
         <CommandPalette />
@@ -83,9 +85,9 @@ function JourneyVeil() {
 
 function NotFound() {
   return (
-    <section className="p-6" data-ui>
+    <section className="plate" data-ui>
       <p className="kicker">404</p>
-      <h1 className="text-2xl font-semibold mt-2">Nothing out here.</h1>
+      <h1>Nothing out here.</h1>
     </section>
   );
 }

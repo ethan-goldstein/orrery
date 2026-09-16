@@ -3,6 +3,8 @@ import { Experience, type Command, type ExperienceContext } from '@/engine/Exper
 import { Starfield } from '@/engine/Starfield';
 import { applyLogDepth } from '@/engine/materials/logDepth';
 import { CameraRig } from '@/engine/CameraRig';
+import { formatDistanceKm } from '@/engine/motion';
+import { UNITS_PER_KM } from '@/astro/scale';
 import { assetUrl, loadTexture } from '@/engine/Assets';
 import type { ClockState } from '@/astro/time';
 import { oceanStore, type OceanPreset } from '@/store/oceans';
@@ -55,6 +57,8 @@ export class OceansExperience extends Experience {
     this.scene.add(this.globe);
     this.rig = new CameraRig(this.camera, ctx.stage, { distance: R * 3.2, phi: 1.4, theta: -1.2 });
     this.rig.limits = { minDistance: R * 1.15, maxDistance: R * 10, minPolar: 0.05, maxPolar: Math.PI - 0.05 };
+    this.rig.anchor = { center: new THREE.Vector3(), radius: R };
+    this.rig.readout = (d) => `${formatDistanceKm((d - R) / UNITS_PER_KM)} up`;
     this.unsub.push(
       oceanStore.subscribe((s, prev) => {
         if (s.preset !== prev.preset) this.applyPreset(s.preset);
@@ -233,7 +237,7 @@ export class OceansExperience extends Experience {
     const phi = ((90 - p.lat) * Math.PI) / 180;
     const theta = ((p.lon + 90) * Math.PI) / 180;
     if (immediate) this.rig.importPose({ phi, theta, distance: p.distance, target: new THREE.Vector3() });
-    else void this.rig.flyTo({ phi, theta, distance: p.distance }, 1.8);
+    else void this.rig.flyTo({ phi, theta, distance: p.distance, target: new THREE.Vector3() });
   }
 
   update(dt: number, _clock: ClockState): void {
@@ -268,12 +272,6 @@ export class OceansExperience extends Experience {
     c.dataset.preset = s.preset;
     c.dataset.particles = String(s.particleCount);
     c.dataset.playing = s.playing ? 'true' : 'false';
-  }
-
-  zoom(factor: number): void {
-    if (!this.ready) return;
-    this.rig.cancelFlight();
-    void this.rig.flyTo({ distance: this.rig.pose.distance * factor }, 0.6);
   }
 
   override commands(): Command[] {

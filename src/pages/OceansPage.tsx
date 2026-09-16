@@ -5,8 +5,7 @@ import { oceanStore, useOceans, type OceanPreset } from '@/store/oceans';
 import { useExperience as useExperienceState } from '@/store/experience';
 import { writeUrl } from '@/app/url-state';
 
-let current: OceansExperience | null = null;
-const factory = () => (current = new OceansExperience());
+const factory = () => new OceansExperience();
 
 const PRESETS: { id: OceanPreset; label: string; headline: string; blurb: string }[] = [
   { id: 'planet', label: 'Ocean planet', headline: 'An ocean. Always moving.', blurb: 'Beneath a familiar blue surface, water is on the move. Follow the currents that connect our ocean basins.' },
@@ -45,12 +44,12 @@ export default function OceansPage() {
   if (cleanView) return null;
   return (
     <>
-      <section className="p-5 md:p-8 max-w-md pointer-events-none" aria-live="polite">
+      <section className="plate" aria-live="polite">
         <p className="kicker">A planet connected by water</p>
-        <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mt-2" key={preset}>
+        <h1 key={preset}>
           {p.headline}
         </h1>
-        <p className="mt-2 text-fog-2 leading-relaxed">{p.blurb}</p>
+        <p className="dek">{p.blurb}</p>
         <div className="mt-5 flex flex-wrap gap-2" data-ui>
           {PRESETS.map((x) => (
             <button key={x.id} className="chip" aria-pressed={preset === x.id} onClick={() => set({ preset: x.id })}>
@@ -70,7 +69,7 @@ export default function OceansPage() {
           <input type="range" min={0.25} max={3} step={0.25} value={speed} onChange={(e) => set({ speed: Number(e.target.value) })} aria-label="Playback speed" className="w-48" />
         </label>
       </section>
-      <aside className="panel fixed right-4 top-20 w-64 p-4 hidden md:block" data-ui data-testid="oceans-panel">
+      <aside className="card drawer hidden md:block" data-ui data-testid="oceans-panel">
         <p className="text-2xl font-semibold">One connected ocean</p>
         <p className="kicker mt-1">Surface currents · 26 Sep 2014</p>
         <p className="text-xs text-fog-2 mt-2">{count.toLocaleString()} particles advected through the OSCAR velocity field. Trails accelerated: one real second is about ten hours.</p>
@@ -81,14 +80,6 @@ export default function OceansPage() {
           <span>1.2+ m/s</span>
         </div>
         <p className="text-xs text-fog-2 mt-3">NASA/JPL OSCAR via NOAA CoastWatch · frozen surface field · drag to rotate</p>
-        <div className="mt-3 flex gap-2">
-          <button className="chip" onClick={() => current?.zoom(0.8)} aria-label="Zoom in">
-            +
-          </button>
-          <button className="chip" onClick={() => current?.zoom(1.25)} aria-label="Zoom out">
-            −
-          </button>
-        </div>
       </aside>
     </>
   );

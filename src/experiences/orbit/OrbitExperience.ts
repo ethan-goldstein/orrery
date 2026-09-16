@@ -3,6 +3,8 @@ import { Experience, type Command, type ExperienceContext } from '@/engine/Exper
 import { Starfield } from '@/engine/Starfield';
 import { applyLogDepth } from '@/engine/materials/logDepth';
 import { CameraRig } from '@/engine/CameraRig';
+import { formatDistanceKm } from '@/engine/motion';
+import { UNITS_PER_KM } from '@/astro/scale';
 import { OrbitLine } from '@/engine/OrbitLine';
 import { Labels } from '@/engine/Labels';
 import { assetUrl, loadTexture } from '@/engine/Assets';
@@ -74,6 +76,8 @@ export class OrbitExperience extends Experience {
     this.scene.add(this.atmo.inner, this.atmo.outer);
     this.rig = new CameraRig(this.camera, ctx.stage, { distance: R * 3.6, phi: 1.2, theta: 0.5 });
     this.rig.limits = { minDistance: R * 1.02, maxDistance: R * 16, minPolar: 0.05, maxPolar: Math.PI - 0.05 };
+    this.rig.anchor = { center: new THREE.Vector3(), radius: R };
+    this.rig.readout = (d) => `${formatDistanceKm((d - R) / UNITS_PER_KM)} up`;
     this.rig.element.addEventListener('pointerdown', () => {
       if (orbitStore.getState().follow) orbitStore.getState().set({ follow: false });
     });
@@ -97,6 +101,10 @@ export class OrbitExperience extends Experience {
       orbitStore.subscribe((s, prev) => {
         if (s.selected !== prev.selected) this.onSelect(s.selected);
         if (s.group !== prev.group) this.frameGroup(s.group);
+        if ((s.follow !== prev.follow && !s.follow) || (s.selected === null && prev.selected !== null)) {
+          this.rig.limits.minDistance = R * 1.02;
+          this.rig.setGoal({ target: new THREE.Vector3() }, 0.6);
+        }
       }),
     );
     this.ready = true;
@@ -246,7 +254,7 @@ export class OrbitExperience extends Experience {
 
   private frameGroup(group: OrbitGroup): void {
     const d = group === 'leo' ? R * 3.4 : group === 'meo' ? R * 8 : group === 'geo' ? R * 12 : R * 13;
-    void this.rig.flyTo({ distance: d }, 1.6);
+    void this.rig.flyTo({ distance: d, target: new THREE.Vector3() });
   }
 
   private pick(clientX: number, clientY: number): void {
@@ -350,18 +358,15 @@ export class OrbitExperience extends Experience {
           const alt = this.followVec.length() * 1000 - 6371;
           const speed = Math.hypot(st[i * 6 + 3]!, st[i * 6 + 4]!, st[i * 6 + 5]!) * 1000;
           if (s.selectedInfo && Math.abs(s.selectedInfo.altKm - alt) > 1) s.set({ selectedInfo: { ...s.selectedInfo, altKm: alt, speedKmS: speed } });
-          if (s.follow) {
-            this.rig.pose.target.lerp(this.followVec, 1 - Math.exp(-dt * 6));
+          if (s.follow && !this.rig.flying) {
+            this.rig.goal.target.copy(this.followVec);
+            this.rig.smooth.target = 0.15;
             this.rig.limits.minDistance = 0.05;
-          } else if (!this.rig.flying) {
-            this.rig.pose.target.lerp(new THREE.Vector3(), 1 - Math.exp(-dt * 4));
-            this.rig.limits.minDistance = R * 1.02;
           }
           this.labels.update([{ id: String(s.selected), text: s.selectedInfo?.name ?? String(s.selected), color: '#ffd27a', priority: 5, position: this.followVec, radius: 0.02, visible: true }], this.camera, { center: new THREE.Vector3(), radius: R }, String(s.selected));
         }
       } else {
         this.labels.update([], this.camera, null, null);
-        if (!this.rig.flying) this.rig.pose.target.lerp(new THREE.Vector3(), 1 - Math.exp(-dt * 4));
       }
       this.path.line.visible = s.paths && s.selected !== null && this.index.has(s.selected);
     }
@@ -375,12 +380,6 @@ export class OrbitExperience extends Experience {
 
   private lastGmst: number | null = null;
   private spare: Float32Array | null = null;
-
-  zoom(factor: number): void {
-    if (!this.ready) return;
-    this.rig.cancelFlight();
-    void this.rig.flyTo({ distance: this.rig.pose.distance * factor }, 0.6);
-  }
 
   search(query: string, limit = 12): { id: number; name: string; type: number; launch: number }[] {
     const q = query.trim().toLowerCase();

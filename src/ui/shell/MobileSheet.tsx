@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useExperience } from '@/store/experience';
+import { useNarrow } from './useNarrow';
 
 /**
  * On narrow screens the page copy and controls live in a bottom sheet that
@@ -7,7 +8,7 @@ import { useExperience } from '@/store/experience';
  */
 export function MobileSheet({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
-  const [narrow, setNarrow] = useState(() => typeof matchMedia === 'function' && matchMedia('(max-width: 767px)').matches);
+  const narrow = useNarrow();
   const cleanView = useExperience((s) => s.cleanView);
   const bodyRef = useRef<HTMLDivElement>(null);
   const [title, setTitle] = useState('');
@@ -21,12 +22,6 @@ export function MobileSheet({ children }: { children: ReactNode }) {
     mo.observe(el, { childList: true, subtree: true, characterData: true });
     return () => mo.disconnect();
   }, [narrow]);
-  useEffect(() => {
-    const mq = matchMedia('(max-width: 767px)');
-    const on = () => setNarrow(mq.matches);
-    mq.addEventListener('change', on);
-    return () => mq.removeEventListener('change', on);
-  }, []);
   useEffect(() => {
     if (!narrow) return;
     const onKey = (e: KeyboardEvent) => {

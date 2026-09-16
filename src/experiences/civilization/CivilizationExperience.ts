@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { Experience, type Command, type ExperienceContext } from '@/engine/Experience';
 import { Starfield } from '@/engine/Starfield';
 import { CameraRig } from '@/engine/CameraRig';
+import { formatDistanceKm } from '@/engine/motion';
+import { UNITS_PER_KM } from '@/astro/scale';
 import { Labels, type LabelEntry } from '@/engine/Labels';
 import { assetUrl, loadTexture } from '@/engine/Assets';
 import { createEarthMaterial, createCloudMaterial } from '@/engine/materials/EarthMaterial';
@@ -52,6 +54,8 @@ export class CivilizationExperience extends Experience {
     this.scene.add(this.atmo.inner, this.atmo.outer);
     this.rig = new CameraRig(this.camera, ctx.stage, { distance: R * 2.6, phi: 1.2, theta: 1.4 });
     this.rig.limits = { minDistance: R * 1.15, maxDistance: R * 10, minPolar: 0.05, maxPolar: Math.PI - 0.05 };
+    this.rig.anchor = { center: new THREE.Vector3(), radius: R };
+    this.rig.readout = (d) => `${formatDistanceKm((d - R) / UNITS_PER_KM)} up`;
     this.rig.element.addEventListener('pointerdown', () => civStore.getState().set({ playing: false }));
     this.labels = new Labels(ctx.stage);
     this.labels.onSelect = (id) => civStore.getState().set({ chapter: Number(id), playing: false });
@@ -130,7 +134,7 @@ export class CivilizationExperience extends Experience {
     const theta = ((c.lon + 90) * Math.PI) / 180;
     const distance = R * (1 + c.zoom * 0.42);
     if (immediate) this.rig.importPose({ phi, theta, distance, target: new THREE.Vector3() });
-    else void this.rig.flyTo({ phi, theta, distance }, 2.2);
+    else void this.rig.flyTo({ phi, theta, distance, target: new THREE.Vector3() });
     civStore.getState().set({ night: c.night });
   }
 
@@ -180,12 +184,6 @@ export class CivilizationExperience extends Experience {
     const el = this.ctx.renderer.canvas;
     el.dataset.chapter = String(s.chapter + 1);
     el.dataset.night = s.night ? 'true' : 'false';
-  }
-
-  zoom(factor: number): void {
-    if (!this.ready) return;
-    this.rig.cancelFlight();
-    void this.rig.flyTo({ distance: this.rig.pose.distance * factor }, 0.6);
   }
 
   override commands(): Command[] {

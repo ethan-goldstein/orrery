@@ -9,8 +9,7 @@ import { useClock } from '@/store/clock';
 import { planetPositionKm } from '@/astro/ephemeris';
 import { AU_KM } from '@/astro/scale';
 
-let current: MarsExperience | null = null;
-const factory = () => (current = new MarsExperience());
+const factory = () => new MarsExperience();
 
 const PRESETS: { id: string; label: string; headline: string }[] = [
   { id: 'global', label: 'Whole planet', headline: 'The red frontier.' },
@@ -66,12 +65,12 @@ export default function MarsPage() {
   if (cleanView) return null;
   return (
     <>
-      <section className="p-5 md:p-8 max-w-md pointer-events-none" aria-live="polite">
+      <section className="plate" aria-live="polite">
         <p className="kicker">{active ? `${active.agency} · ${active.date}` : 'The fourth planet'}</p>
-        <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mt-2" key={active?.id ?? preset} data-testid="mars-title">
+        <h1 key={active?.id ?? preset} data-testid="mars-title">
           {active ? active.name : p.headline}
         </h1>
-        <p className="mt-2 text-fog-2 leading-relaxed">
+        <p className="dek">
           {active ? active.blurb : preset === 'olympus' ? 'Olympus Mons rises 22 km above the plains, three times Everest, with a base the size of Arizona.' : preset === 'marineris' ? 'Valles Marineris runs 4,000 km along the equator, up to 7 km deep. It would stretch across the United States.' : preset === 'polar' ? 'The northern cap is water ice under a winter blanket of frozen carbon dioxide that comes and goes with the seasons.' : preset === 'hellas' ? 'Hellas is 2,300 km wide and 7 km deep, the largest visible impact basin in the Solar System.' : 'Half the size of Earth, a day 37 minutes longer than ours, and every landing site ever reached. Oriented for the real date.'}
         </p>
         <div className="mt-5 flex flex-wrap gap-2" data-ui>
@@ -107,37 +106,29 @@ export default function MarsPage() {
           <span className="text-fog-2">{dust < 0.3 ? 'clear' : dust < 0.7 ? 'hazy' : 'global storm'}</span>
         </label>
       </section>
-      <aside className="panel fixed right-4 top-20 w-64 p-4 hidden md:block" data-ui data-testid="mars-panel">
+      <aside className="card drawer hidden md:block" data-ui data-testid="mars-panel">
         <p className="kicker">Right now</p>
         <p className="text-3xl font-semibold mt-1 tabular-nums">{(earthDistanceKm / 1e6).toFixed(1)} million km</p>
         <p className="text-xs text-fog-2">from Earth · a signal takes {lightMin.toFixed(1)} min</p>
         <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
           <div>
-            <dt className="kicker" style={{ fontSize: '0.58rem' }}>From Sun</dt>
+            <dt className="kicker">From Sun</dt>
             <dd className="mt-0.5">{(Math.hypot(...m) / AU_KM).toFixed(3)} AU</dd>
           </div>
           <div>
-            <dt className="kicker" style={{ fontSize: '0.58rem' }}>Radius</dt>
+            <dt className="kicker">Radius</dt>
             <dd className="mt-0.5">3,389.5 km</dd>
           </div>
           <div>
-            <dt className="kicker" style={{ fontSize: '0.58rem' }}>Gravity</dt>
+            <dt className="kicker">Gravity</dt>
             <dd className="mt-0.5">3.71 m/s²</dd>
           </div>
           <div>
-            <dt className="kicker" style={{ fontSize: '0.58rem' }}>Day</dt>
+            <dt className="kicker">Day</dt>
             <dd className="mt-0.5">24 h 37 min</dd>
           </div>
         </dl>
         <p className="text-xs text-fog-2 mt-3">Solar System Scope map · Phobos and Deimos at real positions, drawn 60x larger · {sunlight === null ? 'Real illumination' : 'Illustrative lighting'}</p>
-        <div className="mt-3 flex gap-2">
-          <button className="chip" onClick={() => current?.zoom(0.8)} aria-label="Zoom in">
-            +
-          </button>
-          <button className="chip" onClick={() => current?.zoom(1.25)} aria-label="Zoom out">
-            −
-          </button>
-        </div>
       </aside>
     </>
   );

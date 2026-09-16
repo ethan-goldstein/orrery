@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useEngine, useExperience } from '@/app/EngineContext';
 import { EarthExperience, clampMa } from '@/experiences/earth/EarthExperience';
-import { ERA_KIND_LABEL, ERAS, eraAt, formatAge, maToSlider, sliderToMa } from '@/experiences/earth/eras';
+import { ERA_KIND_LABEL, ERAS, eraAt, formatAge } from '@/experiences/earth/eras';
 import { earthStore, useEarth } from '@/store/earth';
 import { useExperience as useExperienceState } from '@/store/experience';
 import { writeUrl } from '@/app/url-state';
@@ -61,6 +61,7 @@ export default function EarthPage() {
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) return;
       if (e.metaKey || e.ctrlKey) return;
+      if (e.shiftKey && e.key.startsWith('Arrow')) return; // Shift+arrows orbit the camera (global)
       const s = earthStore.getState();
       const sorted = [...ERAS].sort((a, b) => b.ma - a.ma);
       const idx = sorted.findIndex((x) => x.id === eraAt(s.ma).id);
@@ -98,12 +99,12 @@ export default function EarthPage() {
   void engine;
   return (
     <>
-      <section className="p-5 md:p-8 max-w-md pointer-events-none" aria-live="polite">
+      <section className="plate" aria-live="polite">
         <p className="kicker">{era.period} · {kindLabel}</p>
-        <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mt-2" key={era.id}>
+        <h1 key={era.id}>
           {era.headline}
         </h1>
-        <p className="mt-2 text-fog-2 leading-relaxed">{era.story}</p>
+        <p className="dek">{era.story}</p>
         <p className="mt-3 text-xs text-fog-2">
           Source:{' '}
           <a href={era.source.url} target="_blank" rel="noopener noreferrer" className="underline pointer-events-auto" data-ui>
@@ -145,56 +146,15 @@ export default function EarthPage() {
           </button>
         </label>
       </section>
-      <aside className="panel fixed right-4 top-20 w-64 p-4 hidden md:block" data-ui>
+      <aside className="card drawer hidden md:block" data-ui>
         <p className="kicker">Time readout</p>
         <p className="text-3xl font-semibold mt-1 tabular-nums" data-testid="age-readout">
           {formatAge(ma)}
         </p>
         <p className="kicker mt-3">{era.title}</p>
         <p className="text-xs text-fog-2 mt-1" data-testid="earth-lighting">{lightingLabel} · not a live clock</p>
-        <p className="text-xs text-fog-2 mt-1">Scroll to travel · ← → jump eras · Space plays · C compares · H hides the interface</p>
-        <div className="mt-3 flex gap-2">
-          <button className="chip" onClick={() => current?.zoom(0.8)} aria-label="Zoom in">
-            +
-          </button>
-          <button className="chip" onClick={() => current?.zoom(1.25)} aria-label="Zoom out">
-            −
-          </button>
-        </div>
+        <p className="text-xs text-fog-2 mt-1">Shift+scroll or drag the timeline to travel · ← → jump eras · Space plays · C compares · H hides the interface</p>
       </aside>
-      <Timeline ma={ma} />
     </>
-  );
-}
-
-function Timeline({ ma }: { ma: number }) {
-  const set = earthStore.getState().set;
-  const sorted = [...ERAS].sort((a, b) => b.ma - a.ma);
-  return (
-    <div className="fixed bottom-20 left-4 right-4 md:left-8 md:right-8" data-ui data-testid="timeline">
-      <div className="panel px-4 py-3">
-        <input
-          type="range"
-          min={0}
-          max={1000}
-          value={Math.round(maToSlider(ma) * 1000)}
-          onChange={(e) => set({ ma: sliderToMa(Number(e.target.value) / 1000), playing: false })}
-          aria-label="Earth history timeline"
-          className="w-full"
-        />
-        <ol className="mt-1 flex justify-between text-[10px] text-fog-2">
-          {sorted.map((e) => (
-            <li key={e.id}>
-              <button className={`hover:text-fog ${eraAt(ma).id === e.id ? 'text-glow' : ''}`} onClick={() => set({ ma: e.ma, playing: false })} data-era={e.id}>
-                {e.fact === 'Now' ? 'Today' : `${e.fact} ${e.factLabel.startsWith('billion') ? 'Ga' : 'Ma'}`}
-              </button>
-            </li>
-          ))}
-        </ol>
-        <p className="kicker mt-1" style={{ fontSize: '0.55rem' }}>
-          Formation ──── present · event spacing is not linear · Ga = billion years, Ma = million years
-        </p>
-      </div>
-    </div>
   );
 }

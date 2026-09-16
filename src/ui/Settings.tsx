@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { settingsStore, useSettings } from '@/store/settings';
 import type { TierName } from '@/engine/QualityTier';
+import { Glyph } from './shell/icons';
 
 export function SettingsButton() {
   const [open, setOpen] = useState(false);
@@ -21,11 +22,11 @@ export function SettingsButton() {
   }, [open]);
   return (
     <div className="relative" ref={ref}>
-      <button className="text-fog-2 hover:text-fog" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-haspopup="dialog" data-testid="settings-button">
-        Settings
+      <button className={`rail-link${open ? ' is-active' : ''}`} onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-haspopup="dialog" data-testid="settings-button" aria-label="Settings" data-tip="Settings">
+        <Glyph.settings />
       </button>
       {open && (
-        <div className="panel absolute right-0 mt-2 w-64 p-4 text-sm z-20" role="dialog" aria-label="Settings">
+        <div className="card settings-pop w-64 p-4 text-sm" role="dialog" aria-label="Settings">
           <label className="block">
             <span className="kicker">Quality</span>
             <select className="chip w-full mt-1 bg-ink-2" value={quality} onChange={(e) => s.setQuality(e.target.value as TierName | 'auto')} aria-label="Render quality">

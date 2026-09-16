@@ -21,7 +21,7 @@ export class SkyExperience extends Experience {
 
   update(dt: number): void {
     this.drift += dt * 0.004;
-    if (this.rig && !this.rig.flying) this.rig.pose.theta += dt * 0.004;
+    if (this.rig && !this.rig.flying) this.rig.goal.theta += dt * 0.004;
     this.rig?.update(dt);
   }
 

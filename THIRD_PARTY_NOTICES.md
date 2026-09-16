@@ -34,6 +34,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
+## Fonts
+
+Fraunces (Undercase Type; Phaedra Charles, Flavia Zimbardi), IBM Plex Sans and IBM Plex Mono
+(IBM; Mike Abbink and Bold Monday) are bundled from the `@fontsource` packages and used under the
+SIL Open Font License 1.1 (https://openfontlicense.org). The fonts are served from this site, not
+from a third party.
+
 ## npm dependencies
 
 Runtime libraries (three.js, postprocessing, astronomy-engine, satellite.js, React, zustand,

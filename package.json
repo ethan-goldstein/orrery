@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Orrery — an atlas of worlds. Earth, Moon, the Solar System and more, rendered from real ephemerides.",
+  "description": "Orrery \u2014 an atlas of worlds. Earth, Moon, the Solar System and more, rendered from real ephemerides.",
   "license": "MIT",
   "author": "Ethan Goldstein",
   "engines": {
@@ -17,7 +17,8 @@
     "test:e2e": "playwright test",
     "lint": "eslint src tests scripts tooling",
     "data:hyg": "tsx scripts/fetch-hyg.ts",
-    "credits": "tsx scripts/gen-credits.ts"
+    "credits": "tsx scripts/gen-credits.ts",
+    "og": "tsx scripts/og-image.ts"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.3.0",

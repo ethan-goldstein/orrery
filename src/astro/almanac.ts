@@ -60,7 +60,7 @@ export function almanacNow(nowMs: number, status?: DataStatus): AlmanacEntry[] {
     kicker: 'The Moon tonight',
     value: phaseName(phase),
     note: `${Math.round(illuminatedFraction(phase) * 100)}% lit · ${km(Math.hypot(...moon))} away`,
-    href: `/moon?t=${iso(nowMs)}`,
+    href: '/moon?t=now',
   });
   const earth = planetPositionKm('earth', nowMs);
   const sunKm = Math.hypot(...earth);
@@ -69,7 +69,7 @@ export function almanacNow(nowMs: number, status?: DataStatus): AlmanacEntry[] {
     kicker: 'The Sun',
     value: `${(sunKm / AU_KM).toFixed(4)} AU`,
     note: `light takes ${(sunKm / 299_792.458 / 60).toFixed(2)} minutes to reach us`,
-    href: `/solar?body=earth&view=planet&t=${iso(nowMs)}`,
+    href: '/solar?body=earth&view=planet&t=now',
   });
   let events: ReturnType<typeof upcomingEvents>;
   try {

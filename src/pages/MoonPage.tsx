@@ -96,7 +96,7 @@ export default function MoonPage() {
           </button>
         </label>
       </section>
-      <aside className="card drawer hidden md:block" data-ui data-testid="moon-panel">
+      <aside className="card drawer" data-ui data-testid="moon-panel">
         <p className="kicker">Right now</p>
         <p className="text-3xl font-semibold mt-1 tabular-nums">{Math.round(distanceKm).toLocaleString()} km</p>
         <p className="text-xs text-fog-2">from Earth, centre to centre</p>

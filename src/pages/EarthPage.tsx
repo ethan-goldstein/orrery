@@ -146,7 +146,7 @@ export default function EarthPage() {
           </button>
         </label>
       </section>
-      <aside className="card drawer hidden md:block" data-ui>
+      <aside className="card drawer" data-ui>
         <p className="kicker">Time readout</p>
         <p className="text-3xl font-semibold mt-1 tabular-nums" data-testid="age-readout">
           {formatAge(ma)}

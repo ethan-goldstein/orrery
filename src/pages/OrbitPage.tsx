@@ -126,7 +126,7 @@ export default function OrbitPage() {
           </button>
         </label>
       </section>
-      <aside className="card drawer hidden md:block" data-ui data-testid="orbit-panel">
+      <aside className="card drawer" data-ui data-testid="orbit-panel">
         <p className="text-3xl font-semibold tabular-nums">{visible.toLocaleString()}</p>
         <p className="kicker">plotted objects</p>
         <p className="text-xs text-fog-2 mt-1">

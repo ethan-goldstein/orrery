@@ -88,7 +88,7 @@ export default function CivilizationPage() {
           ))}
         </ol>
       </section>
-      <aside className="card drawer hidden md:block" data-ui>
+      <aside className="card drawer" data-ui>
         <p className="text-3xl font-semibold tabular-nums">300,000</p>
         <p className="kicker">years of becoming</p>
         <p className="text-xs text-fog-2 mt-3">Night lights appear only once electricity does: none before 1882, faint through the twentieth century, today’s full glow at the end. Chapter locations are published site coordinates.</p>

@@ -40,6 +40,8 @@ export class Engine {
         this.current?.resize(w, h);
         this.composer?.setSize(w, h);
       }),
+      this.renderer.on('contextlost', () => experienceStore.getState().set({ status: 'Graphics paused: the browser dropped the WebGL context. Recovering…' })),
+      this.renderer.on('contextrestored', () => experienceStore.getState().set({ status: '' })),
       settingsStore.subscribe((s, prev) => {
         if (s.quality !== prev.quality || s.grain !== prev.grain) {
           const t = s.quality === 'auto' ? s.probedQuality : s.quality;

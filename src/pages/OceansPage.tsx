@@ -69,7 +69,7 @@ export default function OceansPage() {
           <input type="range" min={0.25} max={3} step={0.25} value={speed} onChange={(e) => set({ speed: Number(e.target.value) })} aria-label="Playback speed" className="w-48" />
         </label>
       </section>
-      <aside className="card drawer hidden md:block" data-ui data-testid="oceans-panel">
+      <aside className="card drawer" data-ui data-testid="oceans-panel">
         <p className="text-2xl font-semibold">One connected ocean</p>
         <p className="kicker mt-1">Surface currents · 26 Sep 2014</p>
         <p className="text-xs text-fog-2 mt-2">{count.toLocaleString()} particles advected through the OSCAR velocity field. Trails accelerated: one real second is about ten hours.</p>

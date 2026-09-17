@@ -199,11 +199,10 @@ kbd { font: 11px var(--font-mono); padding: 1px 5px; border-radius: 2px; border:
   [data-tip]::after { display: none; }
   .chrome > section, .chrome > .page { grid-row: 2; grid-column: 1; }
   .chrome-foot { grid-column: 1; grid-row: 3; position: fixed; left: 0; right: 0; bottom: calc(56px + env(safe-area-inset-bottom)); padding: 0 8px 6px; z-index: 5; }
-  .mobile-sheet[data-open="true"] ~ * .chrome-foot { display: none; }
+  .mobile-sheet[data-open="true"] ~ .chrome-foot, .mobile-sheet[data-open="true"] ~ * .chrome-foot { display: none; }
   .instrument-bar { max-width: 100%; gap: 8px; padding: 4px 8px; min-height: 48px; overflow-x: auto; }
   .ib-group + .ib-group, .instrument-bar > [data-testid="zoom-control"] { padding-left: 8px; }
   .era-scrubber { width: min(60vw, 320px); }
-  .drawer { display: none; }
 }
 
 /* home */

@@ -16,7 +16,6 @@ export default defineConfig({
       ? { cookies: [], origins: [{ origin: `http://localhost:${port}`, localStorage: [{ name: 'orrery.settings.v1', value: JSON.stringify({ quality: 'low', labels: true, grain: false, units: 'metric' }) }] }] }
       : undefined,
     trace: 'retain-on-failure',
-    launchOptions: { args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] },
   },
   webServer: {
     command: `npx vite preview --port ${port} --strictPort`,
@@ -24,5 +23,10 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     env: { BASE_PATH: base },
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'], launchOptions: { args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] } } },
+    // the other engines run a cross-browser subset: boot, shell, instruments, camera basics
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] }, testMatch: /(smoke|home|instruments|hint|phone)\.spec\.ts/ },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] }, testMatch: /(smoke|home|instruments|hint|phone)\.spec\.ts/ },
+  ],
 });

@@ -106,7 +106,7 @@ export default function MarsPage() {
           <span className="text-fog-2">{dust < 0.3 ? 'clear' : dust < 0.7 ? 'hazy' : 'global storm'}</span>
         </label>
       </section>
-      <aside className="card drawer hidden md:block" data-ui data-testid="mars-panel">
+      <aside className="card drawer" data-ui data-testid="mars-panel">
         <p className="kicker">Right now</p>
         <p className="text-3xl font-semibold mt-1 tabular-nums">{(earthDistanceKm / 1e6).toFixed(1)} million km</p>
         <p className="text-xs text-fog-2">from Earth · a signal takes {lightMin.toFixed(1)} min</p>

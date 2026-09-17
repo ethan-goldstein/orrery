@@ -79,7 +79,7 @@ export default function QuakesPage() {
           <input type="range" min={range.start} max={range.end} step={86400} value={through} onChange={(e) => set({ throughSeconds: Number(e.target.value), playing: false })} aria-label="Show earthquakes through year" className="w-56" data-testid="quakes-scrub" />
         </label>
       </section>
-      <aside className="card drawer hidden md:block" data-ui data-testid="quakes-panel">
+      <aside className="card drawer" data-ui data-testid="quakes-panel">
         <p className="text-3xl font-semibold tabular-nums">{visible.toLocaleString()}</p>
         <p className="kicker">recorded M6+ earthquakes shown</p>
         <p className="text-xs text-fog-2 mt-1">

@@ -213,7 +213,7 @@ function InfoPanel({ id }: { id: string }) {
     const years = craft.launch ? (Date.now() - Date.parse(craft.launch)) / (365.25 * 86_400_000) : null;
     const lightMin = t.earthDistanceKm / 299_792.458 / 60;
     return (
-      <aside className="card drawer hidden md:block" data-ui aria-label={`${craft.name} facts`} data-testid="info-panel">
+      <aside className="card drawer" data-ui aria-label={`${craft.name} facts`} data-testid="info-panel">
         <p className="kicker">{craft.kind === 'probe' ? `Spacecraft · ${craft.agency}` : craft.kind}</p>
         <h2 className="text-2xl font-semibold mt-1">{craft.name}</h2>
         <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
@@ -235,7 +235,7 @@ function InfoPanel({ id }: { id: string }) {
   }
   const lightSeconds = t.sunDistanceKm / 299_792.458;
   return (
-    <aside className="card drawer hidden md:block" data-ui aria-label={`${info.name} facts`} data-testid="info-panel">
+    <aside className="card drawer" data-ui aria-label={`${info.name} facts`} data-testid="info-panel">
       <p className="kicker">{info.kind === 'moon' ? `Moon of ${bodyInfo(info.parent!).name}` : info.kind}</p>
       <h2 className="text-2xl font-semibold mt-1">{info.name}</h2>
       <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">

@@ -13,7 +13,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    staticRoutes(ROUTES),
+    staticRoutes(ROUTES, { site: 'https://ethan-goldstein.github.io' }),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icons/*.png', 'icons/*.svg'],

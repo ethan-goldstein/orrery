@@ -26,7 +26,13 @@ export default defineConfig({
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'], launchOptions: { args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] } } },
     // the other engines run a cross-browser subset: boot, shell, instruments, camera basics
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] }, testMatch: /(smoke|home|instruments|hint|phone)\.spec\.ts/ },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] }, testMatch: /(smoke|home|instruments|hint|phone)\.spec\.ts/ },
+    // headless Firefox on Linux has WebGL off unless forced onto its software path; both engines get more time on a software GPU
+    {
+      name: 'firefox',
+      timeout: 120_000,
+      use: { ...devices['Desktop Firefox'], launchOptions: { firefoxUserPrefs: { 'webgl.force-enabled': true, 'webgl.disabled': false, 'webgl.forbid-software': false, 'gfx.webrender.software': true, 'layers.acceleration.force-enabled': true } } },
+      testMatch: /(smoke|home|instruments|hint|phone)\.spec\.ts/,
+    },
+    { name: 'webkit', timeout: 120_000, use: { ...devices['Desktop Safari'] }, testMatch: /(smoke|home|instruments|hint|phone)\.spec\.ts/ },
   ],
 });

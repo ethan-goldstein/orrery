@@ -258,3 +258,14 @@ kbd { font: 11px var(--font-mono); padding: 1px 5px; border-radius: 2px; border:
 .controls-hint-close:hover { border-color: var(--color-rule); color: var(--color-paper); }
 @keyframes hint-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @media (max-width: 767px) { .controls-hint { font-size: 10px; letter-spacing: 0.06em; padding-left: 10px; } }
+
+/* home almanac */
+.home-kicker { margin-top: 26px; }
+.home-almanac { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 10px; list-style: none; padding: 0; }
+.home-almanac-card { display: block; padding: 10px 12px; color: var(--color-paper); text-decoration: none; transition: border-color 0.15s; }
+.home-almanac-card:hover { border-color: rgba(239,230,211,0.4); }
+.home-almanac-kicker { display: block; font: 500 0.6rem var(--font-mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-paper-3); }
+.home-almanac-value { display: block; font-family: var(--font-display); font-variation-settings: "opsz" 36; font-size: 1.35rem; margin-top: 4px; color: var(--color-brass-2); }
+.home-almanac-note { display: block; font-size: 0.72rem; color: var(--color-paper-2); margin-top: 3px; line-height: 1.35; }
+.home-grid { margin-top: 10px; }
+@media (max-width: 767px) { .home-almanac { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

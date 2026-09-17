@@ -5,6 +5,7 @@ import { solarStore, useSolar, type SolarView } from '@/store/solar';
 import { BODIES, BODY_BY_ID, bodyInfo, moonsOf, PLANETS, type BodyInfo } from '@/astro/bodies';
 import { anyBodyInfo, CRAFT_BY_ID, isCraft } from '@/astro/spacecraft';
 import { AU_KM } from '@/astro/scale';
+import { phaseName } from '@/astro/almanac';
 import { useExperience as useExperienceState } from '@/store/experience';
 import { writeUrl } from '@/app/url-state';
 import { upcomingEvents, type AstroEvent } from '@/astro/events';
@@ -268,16 +269,4 @@ function Stat({ k, v }: { k: string; v: string }) {
       <dd className="font-mono tabular-nums mt-0.5">{v}</dd>
     </div>
   );
-}
-
-function phaseName(deg: number): string {
-  const d = ((deg % 360) + 360) % 360;
-  if (d < 22.5 || d >= 337.5) return 'New';
-  if (d < 67.5) return 'Waxing crescent';
-  if (d < 112.5) return 'First quarter';
-  if (d < 157.5) return 'Waxing gibbous';
-  if (d < 202.5) return 'Full';
-  if (d < 247.5) return 'Waning gibbous';
-  if (d < 292.5) return 'Last quarter';
-  return 'Waning crescent';
 }

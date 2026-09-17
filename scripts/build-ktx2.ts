@@ -49,7 +49,12 @@ for (const entry of manifest.textures) {
       continue;
     }
     const start = Date.now();
-    const { data, info } = await sharp(join('public', f.webp)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    // Block-compressed GPU formats (S3TC/BC on most Windows and Linux desktops) reject a base level whose
+    // sides are not multiples of 4, so pad up: Saturn's ring strip is 1024x63 at source.
+    const meta = await sharp(join('public', f.webp)).metadata();
+    const w4 = Math.ceil((meta.width ?? 4) / 4) * 4;
+    const h4 = Math.ceil((meta.height ?? 4) / 4) * 4;
+    const { data, info } = await sharp(join('public', f.webp)).resize(w4, h4, { fit: 'fill', kernel: 'lanczos3' }).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
     const enc = new M.BasisEncoder();
     const srgb = entry.colorSpace === 'srgb';
     enc.setCreateKTX2File(true);

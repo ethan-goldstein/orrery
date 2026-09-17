@@ -31,8 +31,8 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
-      - run: npx playwright install --with-deps chromium firefox webkit
-      - run: npm run test:e2e
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test --project=chromium
         env:
           CI: 'true'
       - uses: actions/upload-artifact@v4
@@ -44,6 +44,29 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+
+  # Firefox and WebKit run the cross-browser subset on their own; they report but do not gate the deploy
+  cross-browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps firefox webkit
+      - run: xvfb-run -a npx playwright test --project=firefox --project=webkit
+        env:
+          CI: 'true'
+          FIREFOX_HEADED: '1'
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-cross-browser
+          path: playwright-report
+          retention-days: 7
 
   deploy:
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')

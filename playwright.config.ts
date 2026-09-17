@@ -30,7 +30,8 @@ export default defineConfig({
     {
       name: 'firefox',
       timeout: 120_000,
-      use: { ...devices['Desktop Firefox'], launchOptions: { firefoxUserPrefs: { 'webgl.force-enabled': true, 'webgl.disabled': false, 'webgl.forbid-software': false, 'gfx.webrender.software': true, 'layers.acceleration.force-enabled': true } } },
+      // on a GPU-less Linux runner Firefox only gets WebGL when it runs headed under xvfb (FIREFOX_HEADED=1)
+      use: { ...devices['Desktop Firefox'], headless: !process.env.FIREFOX_HEADED, launchOptions: { firefoxUserPrefs: { 'webgl.force-enabled': true, 'webgl.disabled': false, 'webgl.forbid-software': false, 'gfx.webrender.software': true, 'layers.acceleration.force-enabled': true } } },
       testMatch: /(smoke|home|instruments|hint|phone)\.spec\.ts/,
     },
     { name: 'webkit', timeout: 120_000, use: { ...devices['Desktop Safari'] }, testMatch: /(smoke|home|instruments|hint|phone)\.spec\.ts/ },

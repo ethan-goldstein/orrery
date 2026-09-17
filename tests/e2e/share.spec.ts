@@ -46,3 +46,19 @@ test('portrait viewports frame the whole globe', async ({ page }) => {
   expect(d / (min / 1.08)).toBeGreaterThan(5.5);
   expect(d / (min / 1.08)).toBeLessThan(8);
 });
+
+test('the command palette can copy the link and save an image', async ({ page }) => {
+  await page.goto('./moon?t=2026-09-14T12:00:00Z&rate=0');
+  await ready(page);
+  await page.keyboard.press('ControlOrMeta+k');
+  const input = page.locator('.palette-input');
+  await expect(input).toBeVisible();
+  await input.fill('copy a link');
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('status').filter({ hasText: 'Link copied' })).toBeVisible();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('/moon');
+  await page.keyboard.press('ControlOrMeta+k');
+  await input.fill('save an image');
+  const [download] = await Promise.all([page.waitForEvent('download'), page.keyboard.press('Enter')]);
+  expect(download.suggestedFilename()).toMatch(/^orrery-moon-.*\.png$/);
+});

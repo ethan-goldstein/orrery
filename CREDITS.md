@@ -53,8 +53,8 @@ elevation_m = value / 255 * 20000 - 12000 (about 78 m per step). Total 2.7 MB.
 
 ### Earthquakes, magnitude 6 and above
 
-3975 events from 2000-01-01 to 2026-09-18 from the USGS Earthquake Hazards Program FDSN event service
-(https://earthquake.usgs.gov/fdsnws/event/1/), retrieved 2026-09-18T10:19:13.108Z, sha256 5713a3bdb36fa536.
+3974 events from 2000-01-01 to 2026-09-19 from the USGS Earthquake Hazards Program FDSN event service
+(https://earthquake.usgs.gov/fdsnws/event/1/), retrieved 2026-09-19T10:02:24.164Z, sha256 8bb6cf387b982289.
 USGS data are in the public domain. Largest: 9.1 2004 Sumatra - Andaman Islands Earthquake; 9.1 2011 Great Tohoku Earthquake, Japan; 8.8 2010 Maule, Chile Earthquake.
 Columns: unixSeconds, lat, lon, depthKm, mag, place, id. Cumulative records, not a hazard forecast.
 

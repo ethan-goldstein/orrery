@@ -37,9 +37,9 @@ field; trails are accelerated for legibility.
 
 ### Tracked objects
 
-20031 objects (16753 payloads, 4 rocket bodies, 2675 debris, 599 unknown)
+20036 objects (16791 payloads, 4 rocket bodies, 2676 debris, 565 unknown)
 from CelesTrak general perturbations data (groups: active, stations, analyst, cosmos-1408-debris, fengyun-1c-debris, iridium-33-debris, cosmos-2251-debris) joined with the CelesTrak SATCAT
-for object type, owner and launch date. Snapshot 2026-10-19, sha256 d50fb6a41c91dc9c.
+for object type, owner and launch date. Snapshot 2026-10-26, sha256 dbe62bb94088799f.
 License: CelesTrak data are provided free for public use (https://celestrak.org/NORAD/documentation/gp-data-formats.php).
 Positions are propagated in the browser with SGP4 (satellite.js) from this snapshot; they drift from truth by
 kilometres per day and are not a conjunction or tracking product.
@@ -53,8 +53,8 @@ elevation_m = value / 255 * 20000 - 12000 (about 78 m per step). Total 2.7 MB.
 
 ### Earthquakes, magnitude 6 and above
 
-3994 events from 2000-01-01 to 2026-10-25 from the USGS Earthquake Hazards Program FDSN event service
-(https://earthquake.usgs.gov/fdsnws/event/1/), retrieved 2026-10-25T10:28:25.946Z, sha256 20cffa04b7e8d4d2.
+3996 events from 2000-01-01 to 2026-10-26 from the USGS Earthquake Hazards Program FDSN event service
+(https://earthquake.usgs.gov/fdsnws/event/1/), retrieved 2026-10-26T11:58:46.308Z, sha256 26659d50b9a09389.
 USGS data are in the public domain. Largest: 9.1 2004 Sumatra - Andaman Islands Earthquake; 9.1 2011 Great Tohoku Earthquake, Japan; 8.8 2010 Maule, Chile Earthquake.
 Columns: unixSeconds, lat, lon, depthKm, mag, place, id. Cumulative records, not a hazard forecast.
 

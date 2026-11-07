@@ -1,6 +1,6 @@
 # Earthquakes, magnitude 6 and above
 
-3999 events from 2000-01-01 to 2026-11-06 from the USGS Earthquake Hazards Program FDSN event service
-(https://earthquake.usgs.gov/fdsnws/event/1/), retrieved 2026-11-06T13:31:13.761Z, sha256 fb93d9cd466fb34c.
+4000 events from 2000-01-01 to 2026-11-07 from the USGS Earthquake Hazards Program FDSN event service
+(https://earthquake.usgs.gov/fdsnws/event/1/), retrieved 2026-11-07T12:11:29.248Z, sha256 a80ced3f059489ab.
 USGS data are in the public domain. Largest: 9.1 2004 Sumatra - Andaman Islands Earthquake; 9.1 2011 Great Tohoku Earthquake, Japan; 8.8 2010 Maule, Chile Earthquake.
 Columns: unixSeconds, lat, lon, depthKm, mag, place, id. Cumulative records, not a hazard forecast.

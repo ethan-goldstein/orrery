@@ -195,7 +195,7 @@
   {
    "id": "quakes",
    "title": "Earthquakes, magnitude 6 and above",
-   "summary": "4004 events from 2000-01-01 to 2026-11-21 from the USGS Earthquake Hazards Program FDSN event service\n(https://earthquake.usgs.gov/fdsnws/event/1/), retrieved 2026-11-21T13:57:55.049Z, sha256 4e882a0218c2c732.\nUSGS data are in the public domain. Largest: 9.1 2004 Sumatra - Andaman Islands Earthquake; 9.1 2011 Great Tohoku Earthquake, Japan; 8.8 2010 Maule, Chile Earthquake.\nColumns: unixSeconds, lat, lon, depthKm, mag, place, id. Cumulative records, not a hazard forecast."
+   "summary": "4006 events from 2000-01-01 to 2026-11-22 from the USGS Earthquake Hazards Program FDSN event service\n(https://earthquake.usgs.gov/fdsnws/event/1/), retrieved 2026-11-22T13:51:56.707Z, sha256 a91a5017c603b352.\nUSGS data are in the public domain. Largest: 9.1 2004 Sumatra - Andaman Islands Earthquake; 9.1 2011 Great Tohoku Earthquake, Japan; 8.8 2010 Maule, Chile Earthquake.\nColumns: unixSeconds, lat, lon, depthKm, mag, place, id. Cumulative records, not a hazard forecast."
   },
   {
    "id": "solar",

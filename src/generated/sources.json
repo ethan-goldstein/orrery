@@ -185,7 +185,7 @@
   {
    "id": "orbit",
    "title": "Tracked objects",
-   "summary": "20149 objects (16893 payloads, 4 rocket bodies, 2678 debris, 574 unknown)\nfrom CelesTrak general perturbations data (groups: active, stations, analyst, cosmos-1408-debris, fengyun-1c-debris, iridium-33-debris, cosmos-2251-debris) joined with the CelesTrak SATCAT\nfor object type, owner and launch date. Snapshot 2026-11-16, sha256 6d7bfd0e55ef33ff.\nLicense: CelesTrak data are provided free for public use (https://celestrak.org/NORAD/documentation/gp-data-formats.php).\nPositions are propagated in the browser with SGP4 (satellite.js) from this snapshot; they drift from truth by\nkilometres per day "
+   "summary": "20167 objects (16903 payloads, 4 rocket bodies, 2680 debris, 580 unknown)\nfrom CelesTrak general perturbations data (groups: active, stations, analyst, cosmos-1408-debris, fengyun-1c-debris, iridium-33-debris, cosmos-2251-debris) joined with the CelesTrak SATCAT\nfor object type, owner and launch date. Snapshot 2026-11-23, sha256 ced2bf08e375ca54.\nLicense: CelesTrak data are provided free for public use (https://celestrak.org/NORAD/documentation/gp-data-formats.php).\nPositions are propagated in the browser with SGP4 (satellite.js) from this snapshot; they drift from truth by\nkilometres per day "
   },
   {
    "id": "paleo",
@@ -195,7 +195,7 @@
   {
    "id": "quakes",
    "title": "Earthquakes, magnitude 6 and above",
-   "summary": "4006 events from 2000-01-01 to 2026-11-22 from the USGS Earthquake Hazards Program FDSN event service\n(https://earthquake.usgs.gov/fdsnws/event/1/), retrieved 2026-11-22T13:51:56.707Z, sha256 a91a5017c603b352.\nUSGS data are in the public domain. Largest: 9.1 2004 Sumatra - Andaman Islands Earthquake; 9.1 2011 Great Tohoku Earthquake, Japan; 8.8 2010 Maule, Chile Earthquake.\nColumns: unixSeconds, lat, lon, depthKm, mag, place, id. Cumulative records, not a hazard forecast."
+   "summary": "4006 events from 2000-01-01 to 2026-11-23 from the USGS Earthquake Hazards Program FDSN event service\n(https://earthquake.usgs.gov/fdsnws/event/1/), retrieved 2026-11-23T16:58:21.307Z, sha256 9f2f162ace7ee6d0.\nUSGS data are in the public domain. Largest: 9.1 2004 Sumatra - Andaman Islands Earthquake; 9.1 2011 Great Tohoku Earthquake, Japan; 8.8 2010 Maule, Chile Earthquake.\nColumns: unixSeconds, lat, lon, depthKm, mag, place, id. Cumulative records, not a hazard forecast."
   },
   {
    "id": "solar",
